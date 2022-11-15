@@ -30,3 +30,34 @@ library(ggsn)      # Windroos op kaartje
 library(ggspatial) # Schaal op kaartje
 library(xlsx)      # Om naar Excel te kunnen schrijven
 ```
+
+# Data inlezen
+
+We lezen de volgende kaarten in: 
+
+- UTM 5 km hokken van België
+- UTM 10 km hokken van België
+- ecoregio's van Vlaanderen
+- provincies van Vlaanderen
+
+```{r data-selectie, results="hide"}
+# Locatie van data en output mappen
+data_path <- here("data", "raw")
+out_path <- here("data", "processed")
+
+# Lees kaartlagen in
+utm_5km <- st_read(paste0(data_path, "utm5_bel.shp"))
+utm_10km <- st_read(paste0(data_path, "utm10_bel.shp"))
+
+ecoregios <- st_read(paste0(data_path, "ecoregio2002.shp"))
+provincies <- st_read(paste0(data_path, "Refprv.shp"))
+
+# Referentie coordinatensysteem: Belgian Lambert 72
+proj_crs <- 31370
+
+# Alle kaartlagen zelfde referentiesysteem
+utm_5km <- st_transform(utm_5km, crs = proj_crs)
+utm_10km <- st_transform(utm_10km, crs = proj_crs)
+ecoregios <- st_transform(ecoregios, crs = proj_crs)
+provincies <- st_transform(provincies, crs = proj_crs)
+```
