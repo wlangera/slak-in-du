@@ -46,11 +46,11 @@ data_path <- here("data", "raw")
 out_path <- here("data", "processed")
 
 # Lees kaartlagen in
-utm_5km <- st_read(paste0(data_path, "utm5_bel.shp"))
-utm_10km <- st_read(paste0(data_path, "utm10_bel.shp"))
+utm_5km <- st_read(paste(data_path, "utm5_bel.shp", sep = "/"))
+utm_10km <- st_read(paste(data_path, "utm10_bel.shp", sep = "/"))
 
-ecoregios <- st_read(paste0(data_path, "ecoregio2002.shp"))
-provincies <- st_read(paste0(data_path, "Refprv.shp"))
+ecoregios <- st_read(paste(data_path, "ecoregio2002.shp", sep = "/"))
+provincies <- st_read(paste(data_path, "Refprv.shp", sep = "/"))
 
 # Referentie coordinatensysteem: Belgian Lambert 72
 proj_crs <- 31370
@@ -126,4 +126,42 @@ intersect_wvl %>%
     geom_sf(aes(fill = ecoregio)) +
     labs(fill = "") +
     theme(legend.position = "bottom")
+```
+
+
+# Overlap UTM-hokken en uitschrijven lijst
+
+Nu overlappen we de laatste laag met de UTM 5 en 10 km hokken.
+
+```{r intersectie-utm}
+# Neem de intersectie van beide lagen voor 5 en 10 km
+intersect_utm5 <- st_intersection(intersect_wvl, utm_5km)
+intersect_utm10 <- st_intersection(intersect_wvl, utm_10km)
+
+# Controle
+p1 <- intersect_utm5 %>%
+        ggplot() +
+          geom_sf(aes(fill = ecoregio)) +
+          labs(title = "UTM 5 km - WGS84", fill = "") +
+          theme(legend.position = "bottom")
+p2 <- intersect_utm5 %>%
+        ggplot() +
+          geom_sf(aes(fill = ecoregio)) +
+          coord_sf(datum = st_crs(intersect_utm5)) +
+          labs(title = "UTM 5 km - Belgian Lambert 72", fill = "") +
+          theme(legend.position = "bottom")
+grid.arrange(p1, p2, ncol = 2)
+
+p3 <- intersect_utm10 %>%
+        ggplot() +
+          geom_sf(aes(fill = ecoregio)) +
+          labs(title = "UTM 10 km - WGS84", fill = "") +
+          theme(legend.position = "bottom")
+p4 <- intersect_utm10 %>%
+        ggplot() +
+          geom_sf(aes(fill = ecoregio)) +
+          coord_sf(datum = st_crs(intersect_utm10)) +
+          labs(title = "UTM 10 km - Belgian Lambert 72", fill = "") +
+          theme(legend.position = "bottom")
+grid.arrange(p3, p4, ncol = 2)
 ```
