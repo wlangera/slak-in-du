@@ -90,3 +90,26 @@ provincies %>%
     theme(legend.position = "bottom")
 ```
 
+
+# Selectie Slak-in-Du gebied
+
+We selecteren de ecoregio's "kustduinen" en "polders en de getijdenschelde" gelegen in West-Vlaanderen. Daarvoor extraheren we eerst West-Vlaanderen uit de provincie-kaartlaag.
+
+```{r subset-selectie}
+# Selecteer West-Vlaanderen
+west_vlaanderen <- provincies %>% filter(NAAM == "West-Vlaanderen")
+
+# Selecteer kustduinen en polders
+eco_selectie <- ecoregios %>% 
+  mutate(ecoregio = gsub("Ecoregio van de ", "", REGIO)) %>%
+  filter(ecoregio %in% c("kustduinen", "polders en de getijdenschelde"))
+
+# Controle
+eco_selectie %>%
+  ggplot() + 
+    geom_sf(data = provincies, fill = alpha("black", 0)) +
+    geom_sf(aes(fill = ecoregio)) +
+    geom_sf(data = west_vlaanderen, fill = alpha("black", 0.2), size = 0.8) +
+    labs(fill = "") +
+    theme(legend.position = "bottom")
+```
