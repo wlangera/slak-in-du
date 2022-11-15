@@ -198,3 +198,39 @@ write.xlsx(utm_10km_out, file = paste(out_path, "utm_hokken_slakindu.xlsx",
                                      sep = "/"),
            sheetName = "utm_10km", row.names = FALSE, append = TRUE)
 ```
+
+
+# Visualisatie geselecteerde hokken
+
+```{r plot-utm}
+# Maak selectie UTM-hokken
+utm_5km_lijst <- unique(intersect_utm5$TAG)
+utm_10km_lijst <- unique(intersect_utm10$TAG)
+
+# Plots
+utm_5km %>% 
+  filter(TAG %in% utm_5km_lijst) %>%
+  ggplot() +
+    geom_sf(data = intersect_wvl, aes(fill = ecoregio), alpha = 0.5) +
+    geom_sf(fill = alpha("black", 0)) +
+    geom_sf_text(aes(label = TAG), size = 1.5) +
+    coord_sf(datum = st_crs(intersect_utm5)) +
+    labs(title = "UTM 5 km - Belgian Lambert 72") +
+    theme(legend.position = "bottom") +
+    north(data = intersect_wvl, location = "topleft", scale = 0.2,
+          anchor = c(x = 16000, y = 235000), symbol = 1) +
+    annotation_scale(location = "br")
+
+utm_10km %>% 
+  filter(TAG %in% utm_10km_lijst) %>%
+  ggplot() +
+    geom_sf(data = intersect_wvl, aes(fill = ecoregio), alpha = 0.5) +
+    geom_sf(fill = alpha("black", 0)) +
+    geom_sf_text(aes(label = TAG), size = 2.5) +
+    coord_sf(datum = st_crs(intersect_utm5)) +
+    labs(title = "UTM 10 km - Belgian Lambert 72") +
+    theme(legend.position = "bottom") +
+    north(data = intersect_wvl, location = "topleft", scale = 0.2,
+          anchor = c(x = 16000, y = 240000), symbol = 1) +
+    annotation_scale(location = "br")
+```
