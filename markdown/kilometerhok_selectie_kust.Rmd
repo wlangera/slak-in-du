@@ -188,3 +188,13 @@ utm_10km_out <- intersect_utm10 %>%
 rownames(utm_10km_out) <- NULL
 utm_10km_out %>% kable()
 ```
+
+```{r output-utm}
+# Output naar Excel
+write.xlsx(utm_5km_out, file = paste(out_path, "utm_hokken_slakindu.xlsx", 
+                                     sep = "/"),
+           sheetName = "utm_5km", row.names = FALSE, append = FALSE)
+write.xlsx(utm_10km_out, file = paste(out_path, "utm_hokken_slakindu.xlsx", 
+                                     sep = "/"),
+           sheetName = "utm_10km", row.names = FALSE, append = TRUE)
+```
