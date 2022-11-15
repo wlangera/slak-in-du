@@ -61,3 +61,32 @@ utm_10km <- st_transform(utm_10km, crs = proj_crs)
 ecoregios <- st_transform(ecoregios, crs = proj_crs)
 provincies <- st_transform(provincies, crs = proj_crs)
 ```
+
+Visualisatie van de kaartlagen:
+
+```{r data-visualisatie}
+# Plot UTM grids naast elkaar
+utm_5km_plot <- ggplot() +
+                  geom_sf(data = utm_5km) +
+                  labs(title = "UTM 5 km België")
+utm_10km_plot <- ggplot() +
+                  geom_sf(data = utm_10km) +
+                  labs(title = "UTM 10 km België")
+grid.arrange(utm_5km_plot, utm_10km_plot, ncol = 2)
+
+# Plot ecoregio's
+ecoregios %>% 
+  mutate(ecoregio = gsub("Ecoregio van de ", "", REGIO)) %>%
+  ggplot() + 
+    geom_sf(aes(fill = ecoregio)) +
+    labs(title = "Ecoregio's Vlaanderen", fill = "") +
+    theme(legend.position = "bottom")
+
+# Plot provincies
+provincies %>%
+  ggplot() + 
+    geom_sf(aes(fill = NAAM)) +
+    labs(title = "Provincies Vlaanderen", fill = "") +
+    theme(legend.position = "bottom")
+```
+
