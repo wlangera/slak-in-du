@@ -52,8 +52,8 @@ utm_10km <- st_read(paste(data_path, "utm10_bel.shp", sep = "/"))
 ecoregios <- st_read(paste(data_path, "ecoregio2002.shp", sep = "/"))
 provincies <- st_read(paste(data_path, "Refprv.shp", sep = "/"))
 
-# Referentie coordinatensysteem: Belgian Lambert 72
-proj_crs <- 31370
+# Referentie coordinatensysteem: UTM zone 31N
+proj_crs <- 32631
 
 # Alle kaartlagen zelfde referentiesysteem
 utm_5km <- st_transform(utm_5km, crs = proj_crs)
@@ -147,8 +147,8 @@ p1 <- intersect_utm5 %>%
 p2 <- intersect_utm5 %>%
         ggplot() +
           geom_sf(aes(fill = ecoregio)) +
-          coord_sf(datum = st_crs(intersect_utm5)) +
-          labs(title = "UTM 5 km - Belgian Lambert 72", fill = "") +
+          coord_sf(datum = proj_crs) +
+          labs(title = "UTM 5 km - UTM 31 N", fill = "") +
           theme(legend.position = "bottom")
 grid.arrange(p1, p2, ncol = 2)
 
@@ -160,8 +160,8 @@ p3 <- intersect_utm10 %>%
 p4 <- intersect_utm10 %>%
         ggplot() +
           geom_sf(aes(fill = ecoregio)) +
-          coord_sf(datum = st_crs(intersect_utm10)) +
-          labs(title = "UTM 10 km - Belgian Lambert 72", fill = "") +
+          coord_sf(datum = proj_crs) +
+          labs(title = "UTM 10 km - UTM 31 N", fill = "") +
           theme(legend.position = "bottom")
 grid.arrange(p3, p4, ncol = 2)
 ```
@@ -214,9 +214,10 @@ utm_5km %>%
     geom_sf(data = intersect_wvl, aes(fill = ecoregio), alpha = 0.5) +
     geom_sf(fill = alpha("black", 0)) +
     geom_sf_text(aes(label = TAG), size = 1.5) +
-    coord_sf(datum = st_crs(intersect_utm5)) +
-    labs(title = "UTM 5 km - Belgian Lambert 72") +
-    theme(legend.position = "bottom") +
+    coord_sf(datum = proj_crs) +
+    labs(title = "UTM 5 km - UTM zone 31N") +
+    theme(legend.position = "bottom",
+          axis.title = element_blank()) +
     north(data = intersect_wvl, location = "topleft", scale = 0.2,
           anchor = c(x = 16000, y = 235000), symbol = 1) +
     annotation_scale(location = "br")
@@ -227,9 +228,10 @@ utm_10km %>%
     geom_sf(data = intersect_wvl, aes(fill = ecoregio), alpha = 0.5) +
     geom_sf(fill = alpha("black", 0)) +
     geom_sf_text(aes(label = TAG), size = 2.5) +
-    coord_sf(datum = st_crs(intersect_utm5)) +
-    labs(title = "UTM 10 km - Belgian Lambert 72") +
-    theme(legend.position = "bottom") +
+    coord_sf(datum = proj_crs) +
+    labs(title = "UTM 10 km - UTM zone 31N") +
+    theme(legend.position = "bottom",
+          axis.title = element_blank()) +
     north(data = intersect_wvl, location = "topleft", scale = 0.2,
           anchor = c(x = 16000, y = 240000), symbol = 1) +
     annotation_scale(location = "br")
