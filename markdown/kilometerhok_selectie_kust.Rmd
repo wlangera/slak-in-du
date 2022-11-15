@@ -113,3 +113,17 @@ eco_selectie %>%
     labs(fill = "") +
     theme(legend.position = "bottom")
 ```
+
+Daarna gebruiken we West-Vlaanderen om een stuk uit de ecoregio-laag te knippen. Dit is nodig aangezien de "polders en de getijdenschelde" ook buiten West-Vlaanderen te vinden zijn, maar die hebben wij niet nodig.
+
+```{r intersectie-wvl}
+# Neem de intersectie van beide lagen
+intersect_wvl <- st_intersection(west_vlaanderen, eco_selectie)
+
+# Controle
+intersect_wvl %>%
+  ggplot() +
+    geom_sf(aes(fill = ecoregio)) +
+    labs(fill = "") +
+    theme(legend.position = "bottom")
+```
