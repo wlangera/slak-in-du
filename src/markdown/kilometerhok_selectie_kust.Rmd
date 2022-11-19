@@ -190,7 +190,7 @@ p4 <- intersect_utm10 %>%
 grid.arrange(p1, p2, p3, p4, ncol = 2)
 ```
 
-De namen van de hokken bevinden zich in de kolom `TAG`. Daaruit kunnen we selecteren, maar we hernoemen deze resp. naar `utm_5` en `utm_10` voor de 5 en 10 km hokken. Ze worden hier opgelijst en schrijven ze ook uit naar een Excel-file.
+We willen een lijst van de UTM hokken op 5 en 10 km schaal. De namen van de hokken bevinden zich in de kolom `TAG`. Daaruit kunnen we selecteren, maar we hernoemen deze resp. naar `utm_5` en `utm_10` voor de 5 en 10 km hokken. Ze worden hier opgelijst en schrijven ze ook uit naar een Excel-file.
 
 ```{r tabel-utm}
 # Maak een mooie tabel
