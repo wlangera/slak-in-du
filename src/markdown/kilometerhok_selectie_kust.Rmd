@@ -83,13 +83,13 @@ utm_1km_plot <- ggplot() +
 utm_2km_plot <- ggplot() +
                   geom_sf(data = utm_2km) +
                   labs(title = "UTM 2 km België")
-
 utm_5km_plot <- ggplot() +
                   geom_sf(data = utm_5km) +
                   labs(title = "UTM 5 km België")
 utm_10km_plot <- ggplot() +
                   geom_sf(data = utm_10km) +
                   labs(title = "UTM 10 km België")
+
 grid.arrange(utm_1km_plot, utm_2km_plot,
              utm_5km_plot, utm_10km_plot, ncol = 2)
 
@@ -152,31 +152,33 @@ intersect_wvl %>%
 
 # Overlap UTM-hokken en uitschrijven lijst
 
-Nu overlappen we de laatste laag met de UTM 5 en 10 km hokken.
+Nu overlappen we de laatste laag met de UTM-hokken.
 
 ```{r intersectie-utm}
 # Neem de intersectie van beide lagen voor 5 en 10 km
+intersect_utm1 <- st_intersection(intersect_wvl, utm_1km)
+intersect_utm2 <- st_intersection(intersect_wvl, utm_2km)
 intersect_utm5 <- st_intersection(intersect_wvl, utm_5km)
 intersect_utm10 <- st_intersection(intersect_wvl, utm_10km)
 
 # Controle
-p1 <- intersect_utm5 %>%
+p1 <- intersect_utm1 %>%
         ggplot() +
           geom_sf(aes(fill = ecoregio)) +
-          labs(title = "UTM 5 km - WGS84", fill = "") +
+          coord_sf(datum = proj_crs) +
+          labs(title = "UTM 1 km - UTM 31 N", fill = "") +
           theme(legend.position = "bottom")
-p2 <- intersect_utm5 %>%
+p2 <- intersect_utm2 %>%
+        ggplot() +
+          geom_sf(aes(fill = ecoregio)) +
+          coord_sf(datum = proj_crs) +
+          labs(title = "UTM 2 km - UTM 31 N", fill = "") +
+          theme(legend.position = "bottom")
+p3 <- intersect_utm5 %>%
         ggplot() +
           geom_sf(aes(fill = ecoregio)) +
           coord_sf(datum = proj_crs) +
           labs(title = "UTM 5 km - UTM 31 N", fill = "") +
-          theme(legend.position = "bottom")
-grid.arrange(p1, p2, ncol = 2)
-
-p3 <- intersect_utm10 %>%
-        ggplot() +
-          geom_sf(aes(fill = ecoregio)) +
-          labs(title = "UTM 10 km - WGS84", fill = "") +
           theme(legend.position = "bottom")
 p4 <- intersect_utm10 %>%
         ggplot() +
@@ -184,7 +186,8 @@ p4 <- intersect_utm10 %>%
           coord_sf(datum = proj_crs) +
           labs(title = "UTM 10 km - UTM 31 N", fill = "") +
           theme(legend.position = "bottom")
-grid.arrange(p3, p4, ncol = 2)
+
+grid.arrange(p1, p2, p3, p4, ncol = 2)
 ```
 
 De namen van de hokken bevinden zich in de kolom `TAG`. Daaruit kunnen we selecteren, maar we hernoemen deze resp. naar `utm_5` en `utm_10` voor de 5 en 10 km hokken. Ze worden hier opgelijst en schrijven ze ook uit naar een Excel-file.
