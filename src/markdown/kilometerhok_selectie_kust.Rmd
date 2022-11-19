@@ -1,5 +1,5 @@
 ---
-title: "Selectie kilometerhokken Slak-in-Du"
+title: "Selectie onderzoeksgebied Slak-in-Du aan de kust"
 author: "Ward Langeraert"
 date: "`r Sys.Date()`"
 output: 
@@ -31,10 +31,17 @@ library(ggspatial) # Schaal op kaartje
 library(xlsx)      # Om naar Excel te kunnen schrijven
 ```
 
+# Doel
+
+Onderzoeksgebied afbakenen voor Slak-in-Du aan de kust. UTM grid over dit gebied op verschillende schalen exporteren om later te gebruiken om verspreidingskaarten te maken.
+
+
 # Data inlezen
 
 We lezen de volgende kaarten in: 
 
+- UTM 1 km hokken van België
+- UTM 2 km hokken van België
 - UTM 5 km hokken van België
 - UTM 10 km hokken van België
 - ecoregio's van Vlaanderen
@@ -46,6 +53,8 @@ data_path <- here("data", "raw")
 out_path <- here("data", "processed")
 
 # Lees kaartlagen in
+utm_1km <- st_read(paste(data_path, "utm1_bel.shp", sep = "/"))
+utm_2km <- st_read(paste(data_path, "utm2_bel.shp", sep = "/"))
 utm_5km <- st_read(paste(data_path, "utm5_bel.shp", sep = "/"))
 utm_10km <- st_read(paste(data_path, "utm10_bel.shp", sep = "/"))
 
@@ -56,6 +65,8 @@ provincies <- st_read(paste(data_path, "Refprv.shp", sep = "/"))
 proj_crs <- 32631
 
 # Alle kaartlagen zelfde referentiesysteem
+utm_1km <- st_transform(utm_1km, crs = proj_crs)
+utm_2km <- st_transform(utm_2km, crs = proj_crs)
 utm_5km <- st_transform(utm_5km, crs = proj_crs)
 utm_10km <- st_transform(utm_10km, crs = proj_crs)
 ecoregios <- st_transform(ecoregios, crs = proj_crs)
