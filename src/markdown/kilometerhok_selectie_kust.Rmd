@@ -137,7 +137,9 @@ Daarna gebruiken we West-Vlaanderen om een stuk uit de ecoregio-laag te knippen.
 
 ```{r intersectie-wvl}
 # Neem de intersectie van beide lagen
-intersect_wvl <- st_intersection(west_vlaanderen, eco_selectie)
+intersect_wvl <- st_intersection(west_vlaanderen, eco_selectie) %>%
+  mutate(ecoregio = ifelse(ecoregio == "polders en de getijdenschelde", 
+                           "kustpolders", "kustduinen"))
 
 # Controle
 intersect_wvl %>%
