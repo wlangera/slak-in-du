@@ -163,6 +163,21 @@ mapview(correct_obs, col.regions = "red") +
 ```
 
 
+# Data exploratie
+
+-datumrange enzo ...
+-effort map
+
+
+# Verspreidingskaarten
+
+
+```{r}
+binary_atlas_utm <- function(soortnaam, resolutie) {
+  
+  
+}
+```
 
 
 testen
