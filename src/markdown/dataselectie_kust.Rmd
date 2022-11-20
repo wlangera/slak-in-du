@@ -127,6 +127,13 @@ mapview(correct_obs, col.regions = "red") +
   mapview(studiegebied_kust_merged, col.regions = "white")
 ```
 
+De punten ten zuiden van het studiegebied bevinden zich terecht niet in de selectie voor het huidige rapport. Het zijn waarnemingen van excursies naar Sint-Michiels en Ryckevelde/Schobbejakshoogte.
+
+De punten ten noorden van het studiegebied moeten wel opgenomen worden uitgenomen de aangespoelde schelp op het strand van Zeebrugge. Gebieden die aan het studiegebied moeten worden toegevoegd zijn:
+
+- Haven Zeebrugge (waarnemingen Pastaslak)
+- Baai van Heist
+- Klein stukje Zwinduinen
 
 
 # Data exploratie
