@@ -29,3 +29,16 @@ library(sf)
 library(mapview)
 ```
 
+# Doel
+
+Selectie van de observaties die gebruikt zullen in het eindrapport van Slak-in-Du aan de kust.
+
+
+# Data inlezen
+
+
+# Data selectie
+
+
+# Data exploratie
+
