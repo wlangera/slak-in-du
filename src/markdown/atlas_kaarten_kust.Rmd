@@ -25,7 +25,8 @@ opts_knit$set(root.dir = here::here())
 
 library(tidyverse)
 library(gridExtra)
-library(sf)        # Om met kaarten te werken
+library(sf)
+library(mapview)
 ```
 
 
@@ -76,6 +77,7 @@ mytheme <- theme(panel.grid.major = element_line(color = "grey",
                  panel.background = element_rect(fill = "aliceblue"),
                  axis.title = element_blank())
 
+# Plot kaarten
 studiegebied_kust %>%
   ggplot() +
     geom_sf(aes(fill = ecoregio)) +
@@ -120,28 +122,44 @@ We lezen de waarnemingendata in van Slak-in-Du. We trekken een buffer rond elke 
 
 ```{r}
 # Laad data
-slakken_data <- read_csv(paste0(data_path, "land_snails.csv"))
+slakken_data <- read_csv(paste(data_path, "observations-slak-in-du.csv",
+                               sep = "/"))
 
 # Zet om naar sf object
-slakken_data_sf <- st_as_sf(slakken_data, 
-  coords = c("decimalLongitude", "decimalLatitude"), crs = 4326)
+slakken_data_sf <- slakken_data %>% 
+  st_as_sf(coords = c("lng", "lat"), crs = 4326)
 
 # Zet crs om naar project crs
-slakken_data_sf <- st_transform(slakken_data_sf, crs = proj_crs)
+slakken_data_sf <- slakken_data_sf %>%
+  st_transform(crs = proj_crs)
+
+# Voeg buffer toe van 25 m radius
+slakken_data_sf_buffer <- slakken_data_sf %>%
+  st_buffer(25)
 
 # Selectie waarnemingen binnen studiegebied
-
-# Buffer
+slakken_kust <- slakken_data_sf_buffer %>%
+  st_intersection(studiegebied_kust_merged)
 ```
 
 Zijn er punten die vlak buiten het gebied vallen?
 
 ```{r}
-#plot alle punten en selectie in 2 kleuren maar zoom in op studiegebied
-ggplot() +
-  geom_sf(data = studiegebied_kust_merged, fill = "white") +
-  coord_sf(datum = proj_crs) +
-  mytheme
+# Selecteer correcte observaties binnen gebied als punten
+correct_obs <- slakken_data_sf %>% 
+  st_intersection(studiegebied_kust_merged)
+id_correct_obs <- correct_obs$id
+
+# Selecteer observaties net buiten gebied
+net_erbuiten <- slakken_data_sf %>% 
+  st_crop(xmin = 460000, xmax = 530000,
+          ymin = 5640000, ymax = 5700000) %>%
+  filter(!(id %in% id_correct_obs))
+
+# Visualiseer
+mapview(correct_obs, col.regions = "red") +
+  mapview(net_erbuiten, col.regions = "blue") +
+  mapview(studiegebied_kust_merged, col.regions = "white")
 ```
 
 
