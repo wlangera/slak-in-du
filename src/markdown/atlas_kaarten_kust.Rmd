@@ -174,7 +174,21 @@ mapview(correct_obs, col.regions = "red") +
 
 ```{r}
 binary_atlas_utm <- function(soortnaam, resolutie) {
+  # Error handling
+  if (!is.numeric(resolutie)) {
+    stop("Resolutie een numerieke waarde zijn!")
+  }
+  if (!(resolutie %in% c(1, 2, 5, 10))) {
+    stop("Resolutie moet op 1, 2, 5 of 10 km schaal zijn!")
+  }
   
+  intersect_utm10 <- slakken_kust %>% 
+  filter(`species name` == "Mostonnetje") %>%
+  st_intersection(utm_10km_kust)
+utm10_list <- unique(intersect_utm10$TAG)
+
+utm_10km_mostonnetje <- utm_10km_kust %>% 
+  mutate(presence = ifelse(TAG %in% utm10_list, "present", "absent"))
   
 }
 ```
