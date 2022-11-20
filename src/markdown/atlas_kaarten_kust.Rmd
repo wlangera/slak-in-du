@@ -182,14 +182,31 @@ binary_atlas_utm <- function(soortnaam, resolutie) {
     stop("Resolutie moet op 1, 2, 5 of 10 km schaal zijn!")
   }
   
-  intersect_utm10 <- slakken_kust %>% 
-  filter(`species name` == "Mostonnetje") %>%
-  st_intersection(utm_10km_kust)
-utm10_list <- unique(intersect_utm10$TAG)
-
-utm_10km_mostonnetje <- utm_10km_kust %>% 
-  mutate(presence = ifelse(TAG %in% utm10_list, "present", "absent"))
+  # Neem UTM-grid studiegebied afhankelijk van resolutie
+  if (resolutie == 1) {
+    utm_kust <- utm_1km_kust
+  } else if (resolutie == 2) {
+    utm_kust <- utm_2km_kust
+  } else if (resolutie == 5) {
+    utm_kust <- utm_5km_kust
+  } else {
+    utm_kust <- utm_10km_kust
+  }
   
+  # Selecteer soort en neem intersectie met UTM-grid
+  intersection <- slakken_kust %>% 
+    filter(`species name` == soortnaam) %>%
+    st_intersection(utm_kust)
+  
+  # Lijst met UTM-hokken waar de soort voorkomt
+  utm_list <- unique(intersection$TAG)
+  
+  # Add variable to resolution grid if species is present
+  utm_grid_final <- utm_kust %>% 
+    mutate(occurrence = ifelse(TAG %in% utm_list, "present", "absent"))
+  
+  # Return
+  return(utm_grid_final)
 }
 ```
 
