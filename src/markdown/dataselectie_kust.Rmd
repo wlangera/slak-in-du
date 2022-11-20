@@ -36,6 +36,46 @@ Selectie van de observaties die gebruikt zullen in het eindrapport van Slak-in-D
 
 # Data inlezen
 
+We lezen de volgende kaarten in: 
+
+- Slak-in-Dugebied aan de kust
+
+Deze bevat twee ecoregio's. We voegen deze samen zodat we een enkele kaart hebben van het volledige studiegebied. 
+
+```{r}
+# Locatie van data en output mappen
+data_path <- here("data", "raw")
+out_path <- here("data", "processed")
+
+# Lees kaartlagen in
+studiegebied_kust <- st_read(paste(out_path, "studiegebied_kust.shp", 
+                                   sep = "/"))
+
+# Voeg ecoregio's samen tot één studiegebied
+studiegebied_kust_merged <- studiegebied_kust %>%
+  st_buffer(0.5) %>%
+  st_union()
+
+# Referentie coordinatensysteem: UTM zone 31N
+proj_crs <- 32631
+```
+
+Visualisatie van de kaartlagen:
+
+```{r}
+# Maak thema voor plotten van kaartjes
+mytheme <- theme(panel.grid.major = element_line(color = "grey", 
+                                                 linetype = "dashed", 
+                                                 size = 0.3),
+                 panel.background = element_rect(fill = "aliceblue"),
+                 axis.title = element_blank())
+
+# Plot kaarten
+studiegebied_kust_merged %>%
+  ggplot() +
+    geom_sf(fill = "white") +
+    mytheme
+```
 
 # Data selectie
 
