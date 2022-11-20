@@ -26,10 +26,9 @@ opts_knit$set(root.dir = here::here())
 library(tidyverse)
 library(gridExtra)
 library(sf)        # Om met kaarten te werken
-library(ggsn)      # Windroos op kaartje
-library(ggspatial) # Schaal op kaartje
 library(xlsx)      # Om naar Excel te kunnen schrijven
 ```
+
 
 # Doel
 
@@ -242,10 +241,7 @@ utm_1km %>%
     coord_sf(datum = proj_crs) +
     labs(title = "UTM 1 km - UTM zone 31N") +
     theme(legend.position = "bottom",
-          axis.title = element_blank()) +
-    north(data = intersect_wvl, location = "topleft", scale = 0.2,
-          symbol = 1) +
-    annotation_scale(location = "br")
+          axis.title = element_blank())
 
 utm_2km %>% 
   filter(TAG %in% utm_2km_lijst) %>%
@@ -255,10 +251,7 @@ utm_2km %>%
     coord_sf(datum = proj_crs) +
     labs(title = "UTM 2 km - UTM zone 31N") +
     theme(legend.position = "bottom",
-          axis.title = element_blank()) +
-    north(data = intersect_wvl, location = "topleft", scale = 0.2,
-          symbol = 1) +
-    annotation_scale(location = "br")
+          axis.title = element_blank())
 
 utm_5km %>% 
   filter(TAG %in% utm_5km_lijst) %>%
@@ -269,10 +262,7 @@ utm_5km %>%
     coord_sf(datum = proj_crs) +
     labs(title = "UTM 5 km - UTM zone 31N") +
     theme(legend.position = "bottom",
-          axis.title = element_blank()) +
-    north(data = intersect_wvl, location = "topleft", scale = 0.2,
-          anchor = c(x = 16000, y = 235000), symbol = 1) +
-    annotation_scale(location = "br")
+          axis.title = element_blank())
 
 utm_10km %>% 
   filter(TAG %in% utm_10km_lijst) %>%
@@ -283,8 +273,5 @@ utm_10km %>%
     coord_sf(datum = proj_crs) +
     labs(title = "UTM 10 km - UTM zone 31N") +
     theme(legend.position = "bottom",
-          axis.title = element_blank()) +
-    north(data = intersect_wvl, location = "topleft", scale = 0.2,
-          anchor = c(x = 16000, y = 240000), symbol = 1) +
-    annotation_scale(location = "br")
+          axis.title = element_blank())
 ```
