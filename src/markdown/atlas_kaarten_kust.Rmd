@@ -27,3 +27,9 @@ library(tidyverse)
 library(gridExtra)
 library(sf)        # Om met kaarten te werken
 ```
+
+
+# Doel
+
+Verspreidingskaarten maken voor alle soorten binnen het Slak-in-Dugebied aan de kust op kleine schaal (1 of 2 km).
+
