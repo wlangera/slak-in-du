@@ -223,7 +223,7 @@ write.xlsx(utm_10km_out, file = paste(out_path, "utm_hokken_slakindu.xlsx",
 ```
 
 
-# Visualisatie geselecteerde hokken
+# Visualisatie en export kaart geselecteerde hokken
 
 ```{r plot-utm}
 # Maak selectie UTM-hokken
@@ -232,9 +232,21 @@ utm_2km_lijst <- unique(intersect_utm2$TAG)
 utm_5km_lijst <- unique(intersect_utm5$TAG)
 utm_10km_lijst <- unique(intersect_utm10$TAG)
 
+# Maak kaartlagen van selecie UTM-hokken
+utm_1km_kust <- utm_1km %>% 
+  filter(TAG %in% utm_1km_lijst)
+
+utm_2km_kust <- utm_2km %>% 
+  filter(TAG %in% utm_2km_lijst)
+
+utm_5km_kust <- utm_5km %>% 
+  filter(TAG %in% utm_5km_lijst)
+
+utm_10km_kust <- utm_10km %>% 
+  filter(TAG %in% utm_10km_lijst)
+
 # Plots
-utm_1km %>% 
-  filter(TAG %in% utm_1km_lijst) %>%
+utm_1km_kust %>%
   ggplot() +
     geom_sf(data = intersect_wvl, aes(fill = ecoregio), alpha = 0.5) +
     geom_sf(fill = alpha("black", 0)) +
@@ -243,8 +255,7 @@ utm_1km %>%
     theme(legend.position = "bottom",
           axis.title = element_blank())
 
-utm_2km %>% 
-  filter(TAG %in% utm_2km_lijst) %>%
+utm_2km_kust %>%
   ggplot() +
     geom_sf(data = intersect_wvl, aes(fill = ecoregio), alpha = 0.5) +
     geom_sf(fill = alpha("black", 0)) +
@@ -253,8 +264,7 @@ utm_2km %>%
     theme(legend.position = "bottom",
           axis.title = element_blank())
 
-utm_5km %>% 
-  filter(TAG %in% utm_5km_lijst) %>%
+utm_5km_kust %>%
   ggplot() +
     geom_sf(data = intersect_wvl, aes(fill = ecoregio), alpha = 0.5) +
     geom_sf(fill = alpha("black", 0)) +
@@ -264,8 +274,7 @@ utm_5km %>%
     theme(legend.position = "bottom",
           axis.title = element_blank())
 
-utm_10km %>% 
-  filter(TAG %in% utm_10km_lijst) %>%
+utm_10km_kust %>%
   ggplot() +
     geom_sf(data = intersect_wvl, aes(fill = ecoregio), alpha = 0.5) +
     geom_sf(fill = alpha("black", 0)) +
@@ -274,4 +283,25 @@ utm_10km %>%
     labs(title = "UTM 10 km - UTM zone 31N") +
     theme(legend.position = "bottom",
           axis.title = element_blank())
+```
+
+Ten slotte exporteren we de kaartlagen van het onderzoeksgebied en de verschillende UTM-hokken over het onderzoeksgebied als .shp-files.
+
+```{r}
+# Output .shp-files
+st_write(intersect_wvl, paste(out_path, "studiegebied_kust.shp", 
+                             sep = "/"), 
+         delete_dsn = TRUE)
+st_write(utm_1km_kust, paste(out_path, "utm_1km_kust.shp", 
+                             sep = "/"), 
+         delete_dsn = TRUE)
+st_write(utm_2km_kust, paste(out_path, "utm_2km_kust.shp", 
+                             sep = "/"), 
+         delete_dsn = TRUE)
+st_write(utm_5km_kust, paste(out_path, "utm_5km_kust.shp", 
+                             sep = "/"), 
+         delete_dsn = TRUE)
+st_write(utm_10km_kust, paste(out_path, "utm_10km_kust.shp", 
+                              sep = "/"), 
+         delete_dsn = TRUE)
 ```
