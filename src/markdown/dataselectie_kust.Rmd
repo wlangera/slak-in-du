@@ -77,6 +77,26 @@ studiegebied_kust_merged %>%
     mytheme
 ```
 
+We lezen de waarnemingendata in van Slak-in-Du. We trekken een buffer rond elke waarneming van 25 m. We selecteren daarna de waarnemingen binnen het studiegebied aan de kust.
+
+```{r}
+# Laad data
+slakken_data <- read_csv(paste(data_path, "observations-slak-in-du.csv",
+                               sep = "/"))
+
+# Zet om naar sf object
+slakken_data_sf <- slakken_data %>% 
+  st_as_sf(coords = c("lng", "lat"), crs = 4326)
+
+# Zet crs om naar project crs
+slakken_data_sf <- slakken_data_sf %>%
+  st_transform(crs = proj_crs)
+
+# Voeg buffer toe van 25 m radius
+slakken_data_sf_buffer <- slakken_data_sf %>%
+  st_buffer(25)
+```
+
 # Data selectie
 
 
