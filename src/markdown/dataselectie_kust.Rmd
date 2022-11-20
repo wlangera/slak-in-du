@@ -38,7 +38,7 @@ Selectie van de observaties die gebruikt zullen in het eindrapport van Slak-in-D
 
 We lezen de volgende kaarten in: 
 
-- Slak-in-Dugebied aan de kust
+- Studiegebied aan de kust
 
 Deze bevat twee ecoregio's. We voegen deze samen zodat we een enkele kaart hebben van het volledige studiegebied. 
 
@@ -81,20 +81,16 @@ We lezen de waarnemingendata in van Slak-in-Du. We trekken een buffer rond elke 
 
 ```{r}
 # Laad data
-slakken_data <- read_csv(paste(data_path, "observations-slak-in-du.csv",
+ruwe_data <- read_csv(paste(data_path, "observations-slak-in-du.csv",
                                sep = "/"))
 
 # Zet om naar sf object
-slakken_data_sf <- slakken_data %>% 
+ruwe_data_sf <- ruwe_data %>% 
   st_as_sf(coords = c("lng", "lat"), crs = 4326)
 
 # Zet crs om naar project crs
-slakken_data_sf <- slakken_data_sf %>%
+ruwe_data_sf <- ruwe_data_sf %>%
   st_transform(crs = proj_crs)
-
-# Voeg buffer toe van 25 m radius
-slakken_data_sf_buffer <- slakken_data_sf %>%
-  st_buffer(25)
 ```
 
 # Dataselectie
@@ -103,7 +99,7 @@ We selecteren daarna de waarnemingen binnen het studiegebied aan de kust.
 
 ```{r}
 # Selectie waarnemingen binnen studiegebied
-slakken_kust <- slakken_data_sf_buffer %>%
+waarnemingen_kust <- ruwe_data_sf %>%
   st_intersection(studiegebied_kust_merged)
 ```
 
@@ -112,13 +108,12 @@ slakken_kust <- slakken_data_sf_buffer %>%
 Zijn er punten die vlak buiten het gebied vallen, maar die wel van belang zijn?
 
 ```{r}
-# Selecteer correcte observaties binnen gebied als punten
-correct_obs <- slakken_data_sf %>% 
-  st_intersection(studiegebied_kust_merged)
+# Selecteer correcte observaties binnen gebied
+correct_obs <- waarnemingen_kust
 id_correct_obs <- correct_obs$id
 
 # Selecteer observaties net buiten gebied
-net_erbuiten <- slakken_data_sf %>% 
+net_erbuiten <- ruwe_data_sf %>% 
   st_crop(xmin = 460000, xmax = 530000,
           ymin = 5640000, ymax = 5700000) %>%
   filter(!(id %in% id_correct_obs))
@@ -140,13 +135,89 @@ De punten ten noorden van het studiegebied moeten wel opgenomen worden uitgenome
 
 ## Selectie van soorten
 
-- geen mariene soorten
+We verwijderen alle mariene soorten uit de selectie. Het gaat om:  
+Mossel, Japanse oester, Strandgaper, Macoma balthica, Witte dunschaal, Zaagje, Filipijnse tapijtschelp, Grofgeribde fuikhoren, Penhoren, Amerikaanse boormossel, Paalworm, Melkwitte arkschalp, Klein drijfhorentje, Ruwe alikruik-complex, Witte wenteltrap, Platte oester, Witte boormossel, Kokkel, Noorse hartschelp, Halfgeknotte strandschelp, Venusschelp, Gewone alikruik, Grote strandschelp, Angulus tenuis, Roze schotelhoren, Tweetandschelpje, Gekielde cirkelslak, Noordse rotsboorder, Bonte mantel, Gevlekt koffieboontje, Gewone priktolhoren, Purperslak, Stompe ribhoren, Vliezig drijfhorentje, Tolhoren onbekend, Gevlochten fuikhoren, Scheve hartschelp, Scheef bultschelpje, Stompe buishoren, Muizenkeuteltje, Klein traliehorentje, Paardenzadel, Haustator solanderi, Glanzende tepelhoren, Oubliehoren, Gewone marmerschelp, Wulk, Grote tepelhoren, Hongaarse muts, Amerikaanse strandschelp, Corbula gibba, Platte slijkgaper.
+
+```{r}
+mariene_mollusken <- c("Mossel", "Japanse oester", "Strandgaper", 
+  "Macoma balthica", "Witte dunschaal", "Zaagje", "Filipijnse tapijtschelp", 
+  "Grofgeribde fuikhoren", "Penhoren", "Amerikaanse boormossel", "Paalworm", 
+  "Melkwitte arkschelp", "Klein drijfhorentje", "Ruwe alikruik-complex", 
+  "Witte wenteltrap", "Platte oester", "Witte boormossel", "Kokkel", 
+  "Noorse hartschelp", "Halfgeknotte strandschelp", "Venusschelp", 
+  "Gewone alikruik", "Grote strandschelp", "Angulus tenuis", 
+  "Roze schotelhoren", "Tweetandschelpje", "Gekielde cirkelslak", 
+  "Noordse rotsboorder", "Bonte mantel", "Gevlekt koffieboontje", 
+  "Gewone priktolhoren", "Purperslak", "Stompe ribhoren", 
+  "Vliezig drijfhorentje", "Tolhoren onbekend", "Gevlochten fuikhoren", 
+  "Scheve hartschelp", "Scheef bultschelpje", "Stompe buishoren", 
+  "Muizenkeuteltje", "Klein traliehorentje", "Paardenzadel", 
+  "Haustator solanderi", "Glanzende tepelhoren", "Oubliehoren", 
+  "Gewone marmerschelp", "Wulk", "Grote tepelhoren", "Hongaarse muts", 
+  "Amerikaanse strandschelp", "Corbula gibba", "Platte slijkgaper")
+
+land_zoetwater_kust <- waarnemingen_kust %>% 
+  filter(!(`species name` %in% mariene_mollusken))
+```
 
 
 ## Selectie relevante waarnemingen
 
-- geen fossiel
-- geen aangespoeld?
+Zijn er waarnemingen van aangespoelde schelpen?
+
+```{r}
+land_zoetwater_kust %>%
+  st_drop_geometry() %>%
+  count(activity) %>%
+  arrange(n) %>%
+  kable()
+```
+
+```{r}
+land_zoetwater_kust %>%
+  st_drop_geometry() %>%
+  filter(activity == "aangespoeld") %>% 
+  select(date, `species name`, number, `life stage`, activity, location, 
+         link) %>%
+  kable()
+```
+
+zoeken in notes...
+
+
+Zijn er waarnemingen van fossiele schelpen?
+
+```{r}
+land_zoetwater_kust %>%
+  st_drop_geometry() %>%
+  count(method) %>%
+  arrange(n) %>%
+  kable()
+```
+
+zoeken in notes...
+
+
+# Voeg buffer toe
+
+Er is altijd onzekerheid op de exacte locatie van een waarneming. We trekken een buffer van 25 m rond elke waarneming tenzij de gedocumenteerde onzekerheid groter is.
+
+
+Zijn er waarnemingen die niet accuraat zijn?
+
+```{r}
+selectie %>%
+  st_drop_geometry() %>%
+  count(accuracy) %>%
+  arrange(accuracy) %>%
+  kable()
+```
+
+```{r}
+# Voeg buffer toe van 25 m radius
+selectie_buffer <- selectie %>%
+  st_buffer(25)
+```
 
 
 # Data exploratie
