@@ -97,7 +97,7 @@ slakken_data_sf_buffer <- slakken_data_sf %>%
   st_buffer(25)
 ```
 
-# Data selectie
+# Dataselectie
 
 We selecteren daarna de waarnemingen binnen het studiegebied aan de kust.
 
@@ -106,6 +106,8 @@ We selecteren daarna de waarnemingen binnen het studiegebied aan de kust.
 slakken_kust <- slakken_data_sf_buffer %>%
   st_intersection(studiegebied_kust_merged)
 ```
+
+## Randgevallen
 
 Zijn er punten die vlak buiten het gebied vallen, maar die wel van belang zijn?
 
@@ -134,6 +136,17 @@ De punten ten noorden van het studiegebied moeten wel opgenomen worden uitgenome
 - Haven Zeebrugge (waarnemingen Pastaslak)
 - Baai van Heist
 - Klein stukje Zwinduinen
+
+
+## Selectie van soorten
+
+- geen mariene soorten
+
+
+## Selectie relevante waarnemingen
+
+- geen fossiel
+- geen aangespoeld?
 
 
 # Data exploratie
