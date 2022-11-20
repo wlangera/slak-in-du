@@ -69,46 +69,50 @@ proj_crs <- 32631
 Visualisatie van de kaartlagen:
 
 ```{r}
+# Maak thema voor plotten van kaartjes
+mytheme <- theme(panel.grid.major = element_line(color = "grey", 
+                                                 linetype = "dashed", 
+                                                 size = 0.3),
+                 panel.background = element_rect(fill = "aliceblue"),
+                 axis.title = element_blank())
+
 studiegebied_kust %>%
   ggplot() +
-    geom_sf(aes(fill = ecoregio))
+    geom_sf(aes(fill = ecoregio)) +
+    mytheme
 
 utm_1km_kust %>%
   ggplot() +
-    geom_sf(data = studiegebied_kust_merged, fill = alpha("white", 0)) +
-    geom_sf(fill = alpha("black", 0)) +
+    geom_sf(data = studiegebied_kust_merged, fill = "white") +
+    geom_sf(fill = alpha("white", 0)) +
     coord_sf(datum = proj_crs) +
     labs(title = "UTM 1 km - UTM zone 31N") +
-    theme(legend.position = "bottom",
-          axis.title = element_blank())
+    mytheme
 
 utm_2km_kust %>%
   ggplot() +
-    geom_sf(data = studiegebied_kust_merged, fill = alpha("white", 0)) +
-    geom_sf(fill = alpha("black", 0)) +
+    geom_sf(data = studiegebied_kust_merged, fill = "white") +
+    geom_sf(fill = alpha("white", 0)) +
     coord_sf(datum = proj_crs) +
     labs(title = "UTM 2 km - UTM zone 31N") +
-    theme(legend.position = "bottom",
-          axis.title = element_blank())
+    mytheme
 
 utm_5km_kust %>%
   ggplot() +
-    geom_sf(data = studiegebied_kust_merged, fill = alpha("white", 0)) +
-    geom_sf(fill = alpha("black", 0)) +
+    geom_sf(data = studiegebied_kust_merged, fill = "white") +
+    geom_sf(fill = alpha("white", 0)) +
     geom_sf_text(aes(label = TAG), size = 1.5) +
     coord_sf(datum = proj_crs) +
     labs(title = "UTM 5 km - UTM zone 31N") +
-    theme(legend.position = "bottom",
-          axis.title = element_blank())
+    mytheme
 
 utm_10km_kust %>%
   ggplot() +
-    geom_sf(data = studiegebied_kust_merged, fill = alpha("white", 0)) +
-    geom_sf(fill = alpha("black", 0)) +
+    geom_sf(data = studiegebied_kust_merged, fill = "white") +
+    geom_sf(fill = alpha("white", 0)) +
     geom_sf_text(aes(label = TAG), size = 2.5) +
     coord_sf(datum = proj_crs) +
     labs(title = "UTM 10 km - UTM zone 31N") +
-    theme(legend.position = "bottom",
-          axis.title = element_blank())
+    mytheme
 ```
 
