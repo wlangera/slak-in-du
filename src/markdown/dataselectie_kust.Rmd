@@ -77,7 +77,7 @@ studiegebied_kust_merged %>%
     mytheme
 ```
 
-We lezen de waarnemingendata in van Slak-in-Du. We trekken een buffer rond elke waarneming van 25 m. We selecteren daarna de waarnemingen binnen het studiegebied aan de kust.
+We lezen de waarnemingendata in van Slak-in-Du. We trekken een buffer rond elke waarneming van 25 m.
 
 ```{r}
 # Laad data
@@ -98,6 +98,35 @@ slakken_data_sf_buffer <- slakken_data_sf %>%
 ```
 
 # Data selectie
+
+We selecteren daarna de waarnemingen binnen het studiegebied aan de kust.
+
+```{r}
+# Selectie waarnemingen binnen studiegebied
+slakken_kust <- slakken_data_sf_buffer %>%
+  st_intersection(studiegebied_kust_merged)
+```
+
+Zijn er punten die vlak buiten het gebied vallen, maar die wel van belang zijn?
+
+```{r}
+# Selecteer correcte observaties binnen gebied als punten
+correct_obs <- slakken_data_sf %>% 
+  st_intersection(studiegebied_kust_merged)
+id_correct_obs <- correct_obs$id
+
+# Selecteer observaties net buiten gebied
+net_erbuiten <- slakken_data_sf %>% 
+  st_crop(xmin = 460000, xmax = 530000,
+          ymin = 5640000, ymax = 5700000) %>%
+  filter(!(id %in% id_correct_obs))
+
+# Visualiseer
+mapview(correct_obs, col.regions = "red") +
+  mapview(net_erbuiten, col.regions = "blue") +
+  mapview(studiegebied_kust_merged, col.regions = "white")
+```
+
 
 
 # Data exploratie
