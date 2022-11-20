@@ -116,3 +116,32 @@ utm_10km_kust %>%
     mytheme
 ```
 
+We lezen de waarnemingendata in van Slak-in-Du. We trekken een buffer rond elke waarneming van 25 m. We selecteren daarna de waarnemingen binnen het studiegebied aan de kust.
+
+```{r}
+# Laad data
+slakken_data <- read_csv(paste0(data_path, "land_snails.csv"))
+
+# Zet om naar sf object
+slakken_data_sf <- st_as_sf(slakken_data, 
+  coords = c("decimalLongitude", "decimalLatitude"), crs = 4326)
+
+# Zet crs om naar project crs
+slakken_data_sf <- st_transform(slakken_data_sf, crs = proj_crs)
+
+# Selectie waarnemingen binnen studiegebied
+
+# Buffer
+```
+
+Zijn er punten die vlak buiten het gebied vallen?
+
+```{r}
+#plot alle punten en selectie in 2 kleuren maar zoom in op studiegebied
+ggplot() +
+  geom_sf(data = studiegebied_kust_merged, fill = "white") +
+  coord_sf(datum = proj_crs) +
+  mytheme
+```
+
+
