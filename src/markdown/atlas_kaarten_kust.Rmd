@@ -58,7 +58,57 @@ utm_10km_kust <- st_read(paste(out_path, "utm_10km_kust.shp", sep = "/"))
 
 studiegebied_kust <- st_read(paste(out_path, "studiegebied_kust.shp", 
                                    sep = "/"))
+studiegebied_kust_merged <- studiegebied_kust %>%
+  st_buffer(0.5) %>%
+  st_union()
 
 # Referentie coordinatensysteem: UTM zone 31N
 proj_crs <- 32631
 ```
+
+Visualisatie van de kaartlagen:
+
+```{r}
+studiegebied_kust %>%
+  ggplot() +
+    geom_sf(aes(fill = ecoregio))
+
+utm_1km_kust %>%
+  ggplot() +
+    geom_sf(data = studiegebied_kust_merged, fill = alpha("white", 0)) +
+    geom_sf(fill = alpha("black", 0)) +
+    coord_sf(datum = proj_crs) +
+    labs(title = "UTM 1 km - UTM zone 31N") +
+    theme(legend.position = "bottom",
+          axis.title = element_blank())
+
+utm_2km_kust %>%
+  ggplot() +
+    geom_sf(data = studiegebied_kust_merged, fill = alpha("white", 0)) +
+    geom_sf(fill = alpha("black", 0)) +
+    coord_sf(datum = proj_crs) +
+    labs(title = "UTM 2 km - UTM zone 31N") +
+    theme(legend.position = "bottom",
+          axis.title = element_blank())
+
+utm_5km_kust %>%
+  ggplot() +
+    geom_sf(data = studiegebied_kust_merged, fill = alpha("white", 0)) +
+    geom_sf(fill = alpha("black", 0)) +
+    geom_sf_text(aes(label = TAG), size = 1.5) +
+    coord_sf(datum = proj_crs) +
+    labs(title = "UTM 5 km - UTM zone 31N") +
+    theme(legend.position = "bottom",
+          axis.title = element_blank())
+
+utm_10km_kust %>%
+  ggplot() +
+    geom_sf(data = studiegebied_kust_merged, fill = alpha("white", 0)) +
+    geom_sf(fill = alpha("black", 0)) +
+    geom_sf_text(aes(label = TAG), size = 2.5) +
+    coord_sf(datum = proj_crs) +
+    labs(title = "UTM 10 km - UTM zone 31N") +
+    theme(legend.position = "bottom",
+          axis.title = element_blank())
+```
+
