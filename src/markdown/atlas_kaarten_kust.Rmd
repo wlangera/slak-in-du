@@ -33,3 +33,32 @@ library(sf)        # Om met kaarten te werken
 
 Verspreidingskaarten maken voor alle soorten binnen het Slak-in-Dugebied aan de kust op kleine schaal (1 of 2 km).
 
+
+# Data inlezen
+
+We lezen de volgende kaarten in: 
+
+- UTM 1 km hokken in het Slak-in-Dugebied aan de kust
+- UTM 2 km hokken in het Slak-in-Dugebied aan de kust
+- UTM 5 km hokken in het Slak-in-Dugebied aan de kust
+- UTM 10 km hokken in het Slak-in-Dugebied aan de kust
+- Slak-in-Dugebied aan de kust
+
+```{r data-selectie, results="hide"}
+# Locatie van data en output mappen
+data_path <- here("data", "raw")
+out_path <- here("data", "processed")
+fig_path <- here("data", "figures", "atlas_maps")
+
+# Lees kaartlagen in
+utm_1km_kust <- st_read(paste(out_path, "utm_1km_kust.shp", sep = "/"))
+utm_2km_kust <- st_read(paste(out_path, "utm_2km_kust.shp", sep = "/"))
+utm_5km_kust <- st_read(paste(out_path, "utm_5km_kust.shp", sep = "/"))
+utm_10km_kust <- st_read(paste(out_path, "utm_10km_kust.shp", sep = "/"))
+
+studiegebied_kust <- st_read(paste(out_path, "studiegebied_kust.shp", 
+                                   sep = "/"))
+
+# Referentie coordinatensysteem: UTM zone 31N
+proj_crs <- 32631
+```
