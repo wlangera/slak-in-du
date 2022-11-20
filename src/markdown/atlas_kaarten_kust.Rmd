@@ -163,3 +163,96 @@ mapview(correct_obs, col.regions = "red") +
 ```
 
 
+
+
+testen
+
+```{r}
+intersect_utm10 <- slakken_kust %>% 
+  filter(`species name` == "Mostonnetje") %>%
+  st_intersection(utm_10km_kust)
+utm10_list <- unique(intersect_utm10$TAG)
+
+utm_10km_mostonnetje <- utm_10km_kust %>% 
+  mutate(presence = ifelse(TAG %in% utm10_list, "present", "absent"))
+
+ggplot() +
+  geom_sf(data = studiegebied_kust_merged, fill = "white") +
+  geom_sf(data = utm_10km_mostonnetje, aes(fill = presence)) +
+  scale_fill_manual(values = c(alpha("white", 0), alpha("red", 0.7))) +
+  labs(title = "Mostonnetje - 10 km") +
+  coord_sf(datum = proj_crs) +
+  theme(legend.position = "") +
+  mytheme
+```
+
+
+```{r}
+# smaller scale
+intersect_utm5 <- slakken_kust %>% 
+  filter(`species name` == "Mostonnetje") %>%
+  st_intersection(utm_5km_kust)
+utm5_list <- unique(intersect_utm5$TAG)
+
+utm_5km_mostonnetje <- utm_5km_kust %>% 
+  mutate(presence = ifelse(TAG %in% utm5_list, "present", "absent"))
+
+#square
+ggplot() +
+  geom_sf(data = studiegebied_kust_merged, fill = "white") +
+  geom_sf(data = utm_5km_mostonnetje, aes(fill = presence), 
+          colour = alpha("white", 0)) +
+  scale_fill_manual(values = c(alpha("white", 0), alpha("red", 0.7))) +
+  geom_sf(data = utm_10km_kust, fill =  alpha("white", 0), size = 0.7) +
+  labs(title = "Mostonnetje - 5 km") +
+  coord_sf(datum = proj_crs) +
+  theme(legend.position = "") +
+  mytheme
+```
+
+
+```{r}
+# smaller scale
+intersect_utm2 <- slakken_kust %>% 
+  filter(`species name` == "Mostonnetje") %>%
+  st_intersection(utm_2km_kust)
+utm2_list <- unique(intersect_utm2$TAG)
+
+utm_2km_mostonnetje <- utm_2km_kust %>% 
+  mutate(presence = ifelse(TAG %in% utm2_list, "present", "absent"))
+
+#square
+ggplot() +
+  geom_sf(data = studiegebied_kust_merged, fill = "white") +
+  geom_sf(data = utm_2km_mostonnetje, aes(fill = presence), 
+          colour = alpha("white", 0)) +
+  scale_fill_manual(values = c(alpha("white", 0), alpha("red", 0.7))) +
+  geom_sf(data = utm_10km_kust, fill =  alpha("white", 0), size = 0.7) +
+  labs(title = "Mostonnetje - 2 km") +
+  coord_sf(datum = proj_crs) +
+  theme(legend.position = "") +
+  mytheme
+```
+
+```{r}
+# smaller scale
+intersect_utm1 <- slakken_kust %>% 
+  filter(`species name` == "Mostonnetje") %>%
+  st_intersection(utm_1km_kust)
+utm1_list <- unique(intersect_utm1$TAG)
+
+utm_1km_mostonnetje <- utm_1km_kust %>% 
+  mutate(presence = ifelse(TAG %in% utm1_list, "present", "absent"))
+
+#square
+ggplot() +
+  geom_sf(data = studiegebied_kust_merged, fill = "white") +
+  geom_sf(data = utm_1km_mostonnetje, aes(fill = presence), 
+          colour = alpha("white", 0)) +
+  scale_fill_manual(values = c(alpha("white", 0), alpha("red", 0.7))) +
+  geom_sf(data = utm_10km_kust, fill =  alpha("white", 0), size = 0.7) +
+  labs(title = "Mostonnetje - 1 km") +
+  coord_sf(datum = proj_crs) +
+  theme(legend.position = "") +
+  mytheme
+```
