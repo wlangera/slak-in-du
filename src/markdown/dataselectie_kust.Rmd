@@ -279,7 +279,17 @@ land_zoetwater_kust_selectie %>%
   kable()
 ```
 
-Deze moeten gecontroleerd worden...
+Deze moeten gecontroleerd worden:
+
+```{r}
+land_zoetwater_kust_selectie %>%
+  st_drop_geometry() %>%
+  filter(accuracy > 25) %>%
+  select(date, `species name`, location, accuracy, link) %>%
+  arrange(desc(accuracy)) %>%
+  kable()
+```
+
 
 ```{r}
 # Voeg buffer toe van 25 m radius
