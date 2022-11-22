@@ -220,5 +220,8 @@ selectie_buffer <- selectie %>%
 ```
 
 
+# Data voorbereiden
+
+
 # Data exploratie
 
