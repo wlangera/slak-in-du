@@ -260,7 +260,7 @@ te_verwijderen <- c(te_verwijderen,
 We verwijderen de waarnemingen van de aangespoelde en fossiele schelpen. Het gaat om `r length(te_verwijderen)` waarnemingen.
 
 ```{r}
-land_zoetwater_kust_clean <- land_zoetwater_kust %>%
+land_zoetwater_kust_selectie <- land_zoetwater_kust %>%
   filter(!(id %in% te_verwijderen))
 ```
 
@@ -272,16 +272,18 @@ Er is altijd onzekerheid op de exacte locatie van een waarneming. We trekken een
 Zijn er waarnemingen die niet accuraat zijn?
 
 ```{r}
-selectie %>%
+land_zoetwater_kust_selectie %>%
   st_drop_geometry() %>%
   count(accuracy) %>%
   arrange(accuracy) %>%
   kable()
 ```
 
+Deze moeten gecontroleerd worden...
+
 ```{r}
 # Voeg buffer toe van 25 m radius
-selectie_buffer <- selectie %>%
+waarnemingen_kust_buffer <- land_zoetwater_kust_selectie %>%
   st_buffer(25)
 ```
 
