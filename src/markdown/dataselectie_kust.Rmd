@@ -305,5 +305,5 @@ waarnemingen_kust_buffer <- land_zoetwater_kust_selectie %>%
 - Nederlandse soortnamen boek
 
 
-# Data exploratie
+# Data exporteren
 
