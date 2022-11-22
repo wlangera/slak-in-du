@@ -163,7 +163,14 @@ land_zoetwater_kust <- waarnemingen_kust %>%
 
 ## Selectie relevante waarnemingen
 
-Zijn er waarnemingen van aangespoelde schelpen?
+
+```{r}
+te_verwijderen <- c()
+```
+
+Zijn er waarnemingen van *aangespoelde schelpen*?
+
+- in ```activity```
 
 ```{r}
 land_zoetwater_kust %>%
@@ -173,19 +180,35 @@ land_zoetwater_kust %>%
   kable()
 ```
 
+Er is een aangespoelde schelp van de Grote glansslak.
+
 ```{r}
 land_zoetwater_kust %>%
   st_drop_geometry() %>%
   filter(activity == "aangespoeld") %>% 
-  select(date, `species name`, number, `life stage`, activity, location, 
+  select(date, `species name`, number, `life stage`, activity, location, notes, 
          link) %>%
   kable()
+
+# voeg id toe aan vector om te verwijderen
+te_verwijderen <- c(te_verwijderen, 
+  land_zoetwater_kust %>%
+    st_drop_geometry() %>%
+    filter(activity == "aangespoeld") %>% 
+    pull(id))
 ```
 
-zoeken in notes...
+- in ```notes```
 
+```{r}
+any(grepl("aangespoeld", land_zoetwater_kust$notes, ignore.case = TRUE))
+```
 
-Zijn er waarnemingen van fossiele schelpen?
+Woord 'aangespoeld' niet aanwezig in notes.  
+  
+Zijn er waarnemingen van *fossiele schelpen*?
+
+- in ```method```
 
 ```{r}
 land_zoetwater_kust %>%
@@ -195,14 +218,57 @@ land_zoetwater_kust %>%
   kable()
 ```
 
-zoeken in notes...
+Een fossiel opgezwollen brakwaterhorentje en 4 fossiele wadslakjes.
+
+```{r}
+land_zoetwater_kust %>%
+  st_drop_geometry() %>%
+  filter(method == "fossiel") %>% 
+  select(date, `species name`, number, `life stage`, activity, location, notes,
+         link) %>%
+  kable()
+
+# voeg id toe aan vector om te verwijderen
+te_verwijderen <- c(te_verwijderen, 
+  land_zoetwater_kust %>%
+    st_drop_geometry() %>%
+    filter(method == "fossiel") %>% 
+    pull(id))
+```
+
+- in ```notes```
+
+70 verdere waarnemingen bevatten in notities het woord Holoceen, fossiel of 'middeleeuw'.
+
+```{r}
+land_zoetwater_kust %>%
+  st_drop_geometry() %>%
+  filter(method != "fossiel",
+         grepl("fossiel|holoceen|middeleeuw", notes, ignore.case = TRUE)) %>%
+  count(`species name`) %>%
+  kable()
+
+# voeg id toe aan vector om te verwijderen
+te_verwijderen <- c(te_verwijderen, 
+  land_zoetwater_kust %>%
+    st_drop_geometry() %>%
+  filter(method != "fossiel",
+         grepl("fossiel|holoceen|middeleeuw", notes, ignore.case = TRUE)) %>% 
+    pull(id))
+```
+
+We verwijderen de waarnemingen van de aangespoelde en fossiele schelpen. Het gaat om `r length(te_verwijderen)` waarnemingen.
+
+```{r}
+land_zoetwater_kust_clean <- land_zoetwater_kust %>%
+  filter(!(id %in% te_verwijderen))
+```
 
 
 # Voeg buffer toe
 
-Er is altijd onzekerheid op de exacte locatie van een waarneming. We trekken een buffer van 25 m rond elke waarneming tenzij de gedocumenteerde onzekerheid groter is.
-
-
+Er is altijd onzekerheid op de exacte locatie van een waarneming. We trekken een buffer van 25 m rond elke waarneming tenzij de gedocumenteerde onzekerheid groter is.  
+  
 Zijn er waarnemingen die niet accuraat zijn?
 
 ```{r}
@@ -221,6 +287,9 @@ selectie_buffer <- selectie %>%
 
 
 # Data voorbereiden
+
+-wetenschappelijke soortnamen GBIF tax backbone
+-Nederlandse soortnamen boek
 
 
 # Data exploratie
