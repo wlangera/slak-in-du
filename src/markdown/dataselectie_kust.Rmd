@@ -180,7 +180,7 @@ land_zoetwater_kust %>%
   kable()
 ```
 
-Er is een aangespoelde schelp van de Grote glansslak.
+Er is een aangespoelde schelp van de Grote glansslak:
 
 ```{r}
 land_zoetwater_kust %>%
@@ -206,6 +206,7 @@ any(grepl("aangespoeld", land_zoetwater_kust$notes, ignore.case = TRUE))
 
 Woord 'aangespoeld' niet aanwezig in notes.  
   
+  
 Zijn er waarnemingen van *fossiele schelpen*?
 
 - in ```method```
@@ -218,7 +219,7 @@ land_zoetwater_kust %>%
   kable()
 ```
 
-Een fossiel opgezwollen brakwaterhorentje en 4 fossiele wadslakjes.
+1 fossiel opgezwollen brakwaterhorentje en 4 fossiele wadslakjes:
 
 ```{r}
 land_zoetwater_kust %>%
@@ -238,7 +239,7 @@ te_verwijderen <- c(te_verwijderen,
 
 - in ```notes```
 
-70 verdere waarnemingen bevatten in notities het woord Holoceen, fossiel of 'middeleeuw'.
+70 verdere waarnemingen bevatten in notities het woord Holoceen, fossiel of 'middeleeuw'. De volgende tabel toont aantal per soort:
 
 ```{r}
 land_zoetwater_kust %>%
@@ -269,7 +270,7 @@ land_zoetwater_kust_selectie <- land_zoetwater_kust %>%
 
 Er is altijd onzekerheid op de exacte locatie van een waarneming. We trekken een buffer van 25 m rond elke waarneming tenzij de gedocumenteerde onzekerheid groter is.  
   
-Zijn er waarnemingen die niet accuraat zijn?
+We zien een groot aantal waarnemingen (```n```) met een accuraatheid groter dan 25:
 
 ```{r}
 land_zoetwater_kust_selectie %>%
@@ -300,8 +301,8 @@ waarnemingen_kust_buffer <- land_zoetwater_kust_selectie %>%
 
 # Data voorbereiden
 
--wetenschappelijke soortnamen GBIF tax backbone
--Nederlandse soortnamen boek
+- wetenschappelijke soortnamen GBIF tax backbone
+- Nederlandse soortnamen boek
 
 
 # Data exploratie
