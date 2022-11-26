@@ -164,7 +164,7 @@ occurrence_utm_grid <- function(soortnaam, resolutie) {
   }
   suppressWarnings({
   # Selecteer soort en neem intersectie met UTM-grid
-  intersection <- slakken_kust %>% 
+  intersection <- slakken_data_sf_buffer %>% 
     filter(`species name` == soortnaam) %>%
     st_intersection(utm_kust)
   
