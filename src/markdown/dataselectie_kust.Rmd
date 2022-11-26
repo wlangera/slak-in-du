@@ -268,9 +268,7 @@ land_zoetwater_kust_selectie <- land_zoetwater_kust %>%
 
 # Voeg buffer toe
 
-Er is altijd onzekerheid op de exacte locatie van een waarneming. We trekken een buffer van 25 m rond elke waarneming tenzij de gedocumenteerde onzekerheid groter is.  
-  
-We zien een groot aantal waarnemingen (```n```) met een accuraatheid groter dan 25:
+Er is altijd onzekerheid op de exacte locatie van een waarneming. We zien een groot aantal waarnemingen (```n```) met een accuraatheid groter dan 25:
 
 ```{r}
 land_zoetwater_kust_selectie %>%
@@ -292,13 +290,6 @@ land_zoetwater_kust_selectie %>%
 ```
 
 
-```{r}
-# Voeg buffer toe van 25 m radius
-waarnemingen_kust_buffer <- land_zoetwater_kust_selectie %>%
-  st_buffer(25)
-```
-
-
 # Data voorbereiden
 
 - wetenschappelijke soortnamen GBIF tax backbone
@@ -306,4 +297,7 @@ waarnemingen_kust_buffer <- land_zoetwater_kust_selectie %>%
 
 
 # Data exporteren
+
+
+
 
