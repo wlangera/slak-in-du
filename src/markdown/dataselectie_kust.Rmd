@@ -299,6 +299,10 @@ land_zoetwater_kust_selectie %>%
 
 # Data exporteren
 
+We slaan de finale dataset op als csv-bestand.
 
-
+```{r}
+write_csv(land_zoetwater_kust_selectie, file = paste(out_path, 
+          "waarnemingen_kust.csv", sep = "/"))
+```
 
