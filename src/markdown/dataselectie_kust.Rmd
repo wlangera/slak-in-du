@@ -295,7 +295,13 @@ land_zoetwater_kust_selectie %>%
 
 - wetenschappelijke soortnamen GBIF tax backbone
 - Nederlandse soortnamen boek
+
 - selectie kolommen
+
+```{r}
+final_df <- land_zoetwater_kust_selectie %>%
+  st_drop_geometry()
+```
 
 
 # Data exporteren
@@ -303,7 +309,6 @@ land_zoetwater_kust_selectie %>%
 We slaan de finale dataset op als csv-bestand.
 
 ```{r}
-write_csv(land_zoetwater_kust_selectie, file = paste(out_path, 
-          "waarnemingen_kust.csv", sep = "/"))
+write_csv(final_df, file = paste(out_path, "waarnemingen_kust.csv", sep = "/"))
 ```
 
