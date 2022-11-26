@@ -1,5 +1,5 @@
 ---
-title: "Dataselectie Slak-in-Du kust"
+title: "Dataselectie en preparatie Slak-in-Du kust"
 author: "Ward Langeraert"
 date: "`r Sys.Date()`"
 output: 
@@ -295,6 +295,7 @@ land_zoetwater_kust_selectie %>%
 
 - wetenschappelijke soortnamen GBIF tax backbone
 - Nederlandse soortnamen boek
+- selectie kolommen
 
 
 # Data exporteren
