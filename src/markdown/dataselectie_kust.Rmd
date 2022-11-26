@@ -31,7 +31,7 @@ library(mapview)
 
 # Doel
 
-Selectie van de observaties die gebruikt zullen in het eindrapport van Slak-in-Du aan de kust.
+Selectie van de observaties die gebruikt zullen in het eindrapport van Slak-in-Du aan de kust. Voorbereiden van finale dataset voor data exploratie en analyses.
 
 
 # Data inlezen
