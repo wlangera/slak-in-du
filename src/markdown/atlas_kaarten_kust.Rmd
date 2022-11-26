@@ -118,16 +118,16 @@ utm_10km_kust %>%
     mytheme
 ```
 
-We lezen de waarnemingendata in van Slak-in-Du. We trekken een buffer rond elke waarneming van 25 m. We selecteren daarna de waarnemingen binnen het studiegebied aan de kust.
+We lezen de waarnemingendata in van Slak-in-Du na data selectie en preparatie. We trekken een buffer rond elke waarneming van 25 m.
 
 ```{r}
 # Laad data
-slakken_data <- read_csv(paste(data_path, "observations-slak-in-du.csv",
-                               sep = "/"))
+slakken_data <- read_csv(paste(out_path, "waarnemingen_kust.csv", sep = "/"))
 
 # Zet om naar sf object
 slakken_data_sf <- slakken_data %>% 
-  st_as_sf(coords = c("lng", "lat"), crs = 4326)
+  mutate(latitude = lat, longitude = lng) %>%
+  st_as_sf(coords = c("longitude", "latitude"), crs = 4326)
 
 # Zet crs om naar project crs
 slakken_data_sf <- slakken_data_sf %>%
@@ -136,37 +136,7 @@ slakken_data_sf <- slakken_data_sf %>%
 # Voeg buffer toe van 25 m radius
 slakken_data_sf_buffer <- slakken_data_sf %>%
   st_buffer(25)
-
-# Selectie waarnemingen binnen studiegebied
-slakken_kust <- slakken_data_sf_buffer %>%
-  st_intersection(studiegebied_kust_merged)
 ```
-
-Zijn er punten die vlak buiten het gebied vallen?
-
-```{r}
-# Selecteer correcte observaties binnen gebied als punten
-correct_obs <- slakken_data_sf %>% 
-  st_intersection(studiegebied_kust_merged)
-id_correct_obs <- correct_obs$id
-
-# Selecteer observaties net buiten gebied
-net_erbuiten <- slakken_data_sf %>% 
-  st_crop(xmin = 460000, xmax = 530000,
-          ymin = 5640000, ymax = 5700000) %>%
-  filter(!(id %in% id_correct_obs))
-
-# Visualiseer
-mapview(correct_obs, col.regions = "red") +
-  mapview(net_erbuiten, col.regions = "blue") +
-  mapview(studiegebied_kust_merged, col.regions = "white")
-```
-
-
-# Data exploratie
-
--datumrange enzo ...
--effort map
 
 
 # Verspreidingskaarten
