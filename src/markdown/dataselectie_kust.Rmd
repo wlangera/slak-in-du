@@ -87,7 +87,7 @@ ruwe_data <- read_csv(paste(data_path, "observations-slak-in-du.csv",
 # Zet om naar sf object
 ruwe_data_sf <- ruwe_data %>% 
   mutate(latitude = lat, longitude = lng) %>%
-  st_as_sf(coords = c("lng", "lat"), crs = 4326)
+  st_as_sf(coords = c("longitude", "latitude"), crs = 4326)
 
 # Zet crs om naar project crs
 ruwe_data_sf <- ruwe_data_sf %>%
