@@ -139,6 +139,8 @@ slakken_data_sf_buffer <- slakken_data_sf %>%
 ```
 
 
+# Verspreidingskaarten
+
 ```{r}
 punten <- data.frame(x = c(492000,495500),
            y = c(5678000, 5672000)) %>%
@@ -153,10 +155,6 @@ utm_5km_kust %>%
     coord_sf(datum = proj_crs) +
     mytheme
 ```
-
-
-# Verspreidingskaarten
-
 
 ```{r}
 occurrence_utm_grid <- function(soortnaam, resolutie) {
