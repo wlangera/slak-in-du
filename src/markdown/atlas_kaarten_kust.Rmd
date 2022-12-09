@@ -139,6 +139,22 @@ slakken_data_sf_buffer <- slakken_data_sf %>%
 ```
 
 
+```{r}
+punten <- data.frame(x = c(492000,495500),
+           y = c(5678000, 5672000)) %>%
+  st_as_sf(coords = c("x", "y"), crs = proj_crs) %>%
+  st_buffer(1000)
+
+utm_5km_kust %>%
+  filter(startsWith(TAG, "DS97")) %>%
+  ggplot() +
+    geom_sf(fill = alpha("white", 0)) +
+    geom_sf(data = punten) +
+    coord_sf(datum = proj_crs) +
+    mytheme
+```
+
+
 # Verspreidingskaarten
 
 
