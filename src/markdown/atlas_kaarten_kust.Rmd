@@ -141,9 +141,12 @@ slakken_data_sf_buffer <- slakken_data_sf %>%
 
 # Verspreidingskaarten
 
+Case: 
+
 ```{r}
-punten <- data.frame(x = c(492000,495500),
-           y = c(5678000, 5672000)) %>%
+punten <- data.frame(id = 1:2, 
+                     x = c(492000,495500),
+                     y = c(5678000, 5672000)) %>%
   st_as_sf(coords = c("x", "y"), crs = proj_crs) %>%
   st_buffer(1000)
 
@@ -155,6 +158,61 @@ utm_5km_kust %>%
     coord_sf(datum = proj_crs) +
     mytheme
 ```
+
+Wat we niet willen:
+
+```{r}
+# Neem intersectie punten met buffer en grid
+intersection <- punten %>%
+  st_intersection(utm_5km_kust %>%
+    filter(startsWith(TAG, "DS97")))
+
+# Lijst met UTM-hokken waar de soort voorkomt
+utm_list <- unique(intersection$TAG)
+
+# Add variable to resolution grid if species is present
+utm_5km_kust %>%
+  filter(startsWith(TAG, "DS97")) %>%
+  mutate(occurrence = ifelse(TAG %in% utm_list, "present", "absent")) %>%
+  ggplot() +
+    geom_sf(data = punten) +
+    geom_sf(aes(fill = occurrence), colour = alpha("white", 0)) +
+    scale_fill_manual(values = c(alpha("white", 0), alpha("red", 0.4))) +
+    geom_sf(data = utm_5km_kust %>% filter(startsWith(TAG, "DS97")),
+            fill = alpha("white", 0))
+    coord_sf(datum = proj_crs) +
+    theme(legend.position = "") +
+    mytheme
+```
+
+Wat we wel willen:
+
+```{r}
+# Neem intersectie grid en punten met buffer
+intersection <- utm_5km_kust %>%
+  filter(startsWith(TAG, "DS97")) %>%
+  st_intersection(punten)
+
+# Selecteer per plot het grootste deel
+
+# Lijst met UTM-hokken waar de soort voorkomt
+utm_list <- unique(intersection$TAG)
+
+# Add variable to resolution grid if species is present
+utm_5km_kust %>%
+  filter(startsWith(TAG, "DS97")) %>%
+  mutate(occurrence = ifelse(TAG %in% utm_list, "present", "absent")) %>%
+  ggplot() +
+    geom_sf(data = punten) +
+    geom_sf(aes(fill = occurrence), colour = alpha("white", 0)) +
+    scale_fill_manual(values = c(alpha("white", 0), alpha("red", 0.4))) +
+    geom_sf(data = utm_5km_kust %>% filter(startsWith(TAG, "DS97")),
+            fill = alpha("white", 0))
+    coord_sf(datum = proj_crs) +
+    theme(legend.position = "") +
+    mytheme
+```
+
 
 ```{r}
 occurrence_utm_grid <- function(soortnaam, resolutie) {
