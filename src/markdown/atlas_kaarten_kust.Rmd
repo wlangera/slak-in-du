@@ -179,7 +179,7 @@ utm_5km_kust %>%
     geom_sf(aes(fill = occurrence), colour = alpha("white", 0)) +
     scale_fill_manual(values = c(alpha("white", 0), alpha("red", 0.4))) +
     geom_sf(data = utm_5km_kust %>% filter(startsWith(TAG, "DS97")),
-            fill = alpha("white", 0))
+            fill = alpha("white", 0)) +
     coord_sf(datum = proj_crs) +
     theme(legend.position = "") +
     mytheme
@@ -191,9 +191,13 @@ Wat we wel willen:
 # Neem intersectie grid en punten met buffer
 intersection <- utm_5km_kust %>%
   filter(startsWith(TAG, "DS97")) %>%
-  st_intersection(punten)
+  st_intersection(punten) %>%
 
 # Selecteer per plot het grootste deel
+  mutate(oppervlakte = st_area(intersection)) %>%
+  group_by(id) %>%
+  filter(oppervlakte == max(oppervlakte))
+
 
 # Lijst met UTM-hokken waar de soort voorkomt
 utm_list <- unique(intersection$TAG)
@@ -207,7 +211,7 @@ utm_5km_kust %>%
     geom_sf(aes(fill = occurrence), colour = alpha("white", 0)) +
     scale_fill_manual(values = c(alpha("white", 0), alpha("red", 0.4))) +
     geom_sf(data = utm_5km_kust %>% filter(startsWith(TAG, "DS97")),
-            fill = alpha("white", 0))
+            fill = alpha("white", 0)) +
     coord_sf(datum = proj_crs) +
     theme(legend.position = "") +
     mytheme
