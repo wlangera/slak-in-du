@@ -35,7 +35,7 @@ library(mapview)
 Verspreidingskaarten maken voor alle soorten binnen het Slak-in-Dugebied aan de kust op kleine schaal (1 of 2 km).
 
 
-# Data inlezen
+# Data inlezen en voorbereiding
 
 We lezen de volgende kaarten in: 
 
@@ -139,9 +139,9 @@ slakken_data_sf_buffer <- slakken_data_sf %>%
 ```
 
 
-# Verspreidingskaarten
+# Methodiek
 
-Case: 
+Om de atlaskaarten te maken, kijken we naar de overlap van de UTM-hokken met de buffers. We willen echter dat buffers die meerdere hokken overlappen slechts het hok kleuren waar ze het grootste opppervlakte hebben. Beschouw bijvoorbeeld de volgende punten:
 
 ```{r}
 punten <- data.frame(id = 1:2, 
@@ -159,7 +159,7 @@ utm_5km_kust %>%
     mytheme
 ```
 
-Wat we niet willen:
+We willen niet dat alle hokken met overlap gekleurd worden zoals hier:
 
 ```{r}
 # Neem intersectie punten met buffer en grid
@@ -185,7 +185,7 @@ utm_5km_kust %>%
     mytheme
 ```
 
-Wat we wel willen:
+We willen wel de hokken met de grootste overlap kleuren, zoals hier:
 
 ```{r}
 # Neem intersectie grid en punten met buffer
@@ -194,7 +194,7 @@ intersection <- utm_5km_kust %>%
   st_intersection(punten) %>%
 
 # Selecteer per plot het grootste deel
-  mutate(oppervlakte = st_area(intersection)) %>%
+  mutate(oppervlakte = st_area(geometry)) %>%
   group_by(id) %>%
   filter(oppervlakte == max(oppervlakte))
 
@@ -218,6 +218,8 @@ utm_5km_kust %>%
 ```
 
 
+# Verspreidingskaarten
+
 ```{r}
 occurrence_utm_grid <- function(soortnaam, resolutie) {
   # Error handling
@@ -239,10 +241,18 @@ occurrence_utm_grid <- function(soortnaam, resolutie) {
     utm_kust <- utm_10km_kust
   }
   suppressWarnings({
-  # Selecteer soort en neem intersectie met UTM-grid
-  intersection <- slakken_data_sf_buffer %>% 
-    filter(`species name` == soortnaam) %>%
-    st_intersection(utm_kust)
+  # Selecteer dataframe voor soort
+  data_soort <- slakken_data_sf_buffer %>%
+    filter(`species name` == soortnaam)
+    
+  # Neem intersectie met UTM-grid
+  intersection <- utm_kust %>% 
+    st_intersection(data_soort) %>%
+
+  # Selecteer per buffer het grootste deel
+    mutate(oppervlakte = st_area(geometry)) %>%
+    group_by(id) %>%
+    filter(oppervlakte == max(oppervlakte))
   
   # Lijst met UTM-hokken waar de soort voorkomt
   utm_list <- unique(intersection$TAG)
@@ -256,7 +266,6 @@ occurrence_utm_grid <- function(soortnaam, resolutie) {
   })
 }
 ```
-
 
 ```{r}
 soorten <- c("Mostonnetje", "Grote karthuizerslak", "Bolle duinslak")
