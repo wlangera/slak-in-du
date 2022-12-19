@@ -293,11 +293,61 @@ land_zoetwater_kust_selectie %>%
 
 
 # Data voorbereiden
+## Wetenschappelijke soortnamen
+GBIF tax backbone
 
-- wetenschappelijke soortnamen GBIF tax backbone
-- Nederlandse soortnamen boek
 
+## Nederlandse soortnamen
+
+We vergelijken de Nederlandse soortnamen met de Bruyne et al. (2015). We passen de volgende namen aan (links: naam in dataset, rechts naam in de Bruyne et al. (2015)):  
+  
+Boswegslak/Grauwe wegslak = Bos-wegslak / Grauwe wegslak  
+Boswegslak = Bos-wegslak  
+Egelwegslak = Egel-wegslak  
+Arion rufus / ater = Rode wegslak / Duistere wegslak  
+Rode wegslak/Spaanse wegslak = Rode wegslak / Spaanse wegslak  
+Wormnaaktslak = Grijze wormnaaktslak  
+Alinda biplicata biplicata = Grote clausilia  
+Gewone driehoeksmossel = Driehoeksmossel  
+Gewone wijngaardslak = Wijngaardslak  
+Eénbandige grasslak = Eenbandige grasslak  
+Grote karthuizerslak = Grote kartuizerslak  
+Kleine karthuizerslak = Kleine kartuizerslak  
+Gewone poelslak = Grote poelslak  
+Glansslak-soort = Glansslak onbekend  
+Posthoornslak = Posthorenslak  
+Gewone kristalslak = Grote kristalslak  
+Tandeloze korfslak/Ruwe korfslak = Tandloze korfslak / Ruwe korfslak  
+Cylindrische korfslak = Cilindrische korfslak
+
+```{r}
+land_zoetwater_kust_selectie <- land_zoetwater_kust_selectie %>%
+  mutate(`species name` = recode(`species name`, 
+           "Boswegslak/Grauwe wegslak" = "Bos-wegslak / Grauwe wegslak",
+           "Boswegslak" = "Bos-wegslak",
+           "Egelwegslak" = "Egel-wegslak",
+           "Arion rufus / ater" = "Rode wegslak / Duistere wegslak",
+           "Rode wegslak/Spaanse wegslak" = "Rode wegslak / Spaanse wegslak",
+           "Wormnaaktslak" = "Grijze wormnaaktslak",
+           "Alinda biplicata biplicata" = "Grote clausilia",
+           "Gewone driehoeksmossel" = "Driehoeksmossel",
+           "Gewone wijngaardslak" = "Wijngaardslak",
+           "Eénbandige grasslak" = "Eenbandige grasslak",
+           "Grote karthuizerslak" = "Grote kartuizerslak",
+           "Kleine karthuizerslak" = "Kleine kartuizerslak",
+           "Gewone poelslak" = "Grote poelslak",
+           "Glansslak-soort" = "Glansslak onbekend",
+           "Posthoornslak" = "Posthorenslak",
+           "Gewone kristalslak" = "Grote kristalslak",
+           "Tandeloze korfslak/Ruwe korfslak" = 
+             "Tandloze korfslak / Ruwe korfslak",
+           "Cylindrische korfslak" = "Cilindrische korfslak"))
+```
+
+
+## Preparatie dataset
 - selectie kolommen
+- naam van kolommen
 
 ```{r}
 final_df <- land_zoetwater_kust_selectie %>%

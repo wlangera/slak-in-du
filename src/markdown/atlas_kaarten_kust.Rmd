@@ -269,7 +269,7 @@ occurrence_utm_grid <- function(soortnaam, resolutie) {
 ```
 
 ```{r}
-soorten <- c("Mostonnetje", "Grote karthuizerslak", "Bolle duinslak")
+soorten <- c("Mostonnetje", "Grote kartuizerslak", "Bolle duinslak")
 resoluties <- c(1, 2, 5, 10)
 
 for (soort in soorten) {
