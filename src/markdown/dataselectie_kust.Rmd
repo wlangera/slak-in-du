@@ -462,7 +462,7 @@ final_df <- land_zoetwater_kust_selectie %>%
          latitude = lat, longitude = lng, lambert_x = `local x`, 
          lambert_y = `local y`, precisie = accuracy, notities = notes, 
          is_zeker = `is certain`, link, verbatim_name, species, author, genus, 
-         family, phylum, kingdom)
+         family, class, phylum, kingdom)
 ```
 
 
@@ -479,8 +479,8 @@ We slaan ook een lijst op van alle gevonden soorten.
 ```{r}
 soorten_lijst <- final_df %>%
   distinct(ned_soortnaam, wet_soortnaam, species, author, genus, 
-           family, phylum, kingdom) %>% 
-  arrange(kingdom, phylum, family, wet_soortnaam)
+           family, class, phylum, kingdom) %>% 
+  arrange(kingdom, phylum, class, family, wet_soortnaam)
 
 write_csv(soorten_lijst, file = paste(out_path, "soortenlijst.csv", sep = "/"))
 
