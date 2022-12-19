@@ -3,7 +3,6 @@ title: "Selectie onderzoeksgebied Slak-in-Du aan de kust"
 author: "Ward Langeraert"
 date: "`r Sys.Date()`"
 output: 
-  
   html_document:
       code_folding: hide
       toc: true
@@ -201,7 +200,7 @@ utm_5km_out <- intersect_utm5 %>%
                  distinct(TAG) %>%
                  rename(utm_5 = TAG)
 rownames(utm_5km_out) <- NULL
-utm_5km_out %>% kable()
+utm_5km_out
 
 utm_10km_out <- intersect_utm10 %>%
                  st_drop_geometry() %>%
@@ -210,7 +209,7 @@ utm_10km_out <- intersect_utm10 %>%
                  distinct(TAG) %>%
                  rename(utm_10 = TAG)
 rownames(utm_10km_out) <- NULL
-utm_10km_out %>% kable()
+utm_10km_out
 ```
 
 ```{r output-utm}

@@ -3,7 +3,6 @@ title: "Atlas kaarten kust"
 author: "Ward Langeraert"
 date: "`r Sys.Date()`"
 output: 
-  
   html_document:
       code_folding: hide
       toc: true
@@ -268,19 +267,24 @@ occurrence_utm_grid <- function(soortnaam, resolutie) {
 ```
 
 ```{r}
-soorten <- c("Mostonnetje", "Grote kartuizerslak", "Bolle duinslak")
+soorten <- slakken_data_sf_buffer %>% 
+  st_drop_geometry() %>%
+  distinct(ned_soortnaam, wet_soortnaam)
 resoluties <- c(1, 2, 5, 10)
 
-for (soort in soorten) {
+for (soort in 1:3) {
+  soortnaam <- soorten$ned_soortnaam[soort]
+  wet_naam <- soorten$wet_soortnaam[soort]
   for (resolutie in resoluties) {
     print(
-    occurrence_utm_grid(soort, resolutie) %>%
+    occurrence_utm_grid(soortnaam, resolutie) %>%
       ggplot() +
         geom_sf(data = studiegebied_kust_merged, fill = "white") +
         geom_sf(aes(fill = occurrence), colour = alpha("white", 0)) +
         scale_fill_manual(values = c(alpha("white", 0), alpha("red", 0.7))) +
         geom_sf(data = utm_10km_kust, fill =  alpha("white", 0), size = 0.7) +
-        labs(title = paste0(soort, " - ", resolutie, " km")) +
+        labs(title = paste0(soortnaam, " - ", wet_naam), 
+             subtitle = paste0("UTM ", resolutie, " km")) +
         coord_sf(datum = proj_crs) +
         theme(legend.position = "") +
         mytheme
