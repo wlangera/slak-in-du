@@ -28,6 +28,7 @@ library(tidyverse)
 library(gridExtra)
 library(sf)
 library(mapview)
+library(rgbif)
 ```
 
 # Doel
@@ -268,9 +269,10 @@ land_zoetwater_kust_selectie <- land_zoetwater_kust %>%
 ```
 
 
-# Controleer accuraatheid waarnemingen
+# Data voorbereiden
+## Controleer accuraatheid waarnemingen
 
-Er is altijd onzekerheid op de exacte locatie van een waarneming. We zien een groot aantal waarnemingen (```n```) met een accuraatheid groter dan 25:
+Er is altijd onzekerheid op de exacte locatie van een waarneming. We zien een groot aantal waarnemingen met een accuraatheid groter dan 25:
 
 ```{r}
 land_zoetwater_kust_selectie %>%
@@ -287,14 +289,118 @@ land_zoetwater_kust_selectie %>%
   st_drop_geometry() %>%
   filter(accuracy > 25) %>%
   select(date, `species name`, location, accuracy, link) %>%
-  arrange(desc(accuracy)) %>%
-  kable()
+  arrange(desc(accuracy))
 ```
 
 
-# Data voorbereiden
 ## Wetenschappelijke soortnamen
-GBIF tax backbone
+
+Gebruik de "GBIF-naamontleder" om nomenclatuurinformatie op te halen voor de wetenschappelijke namen in de dataset.
+
+```{r}
+parsed_names <- land_zoetwater_kust_selectie %>%
+  distinct(`scientific name`) %>%
+  pull() %>%
+  parsenames()
+```
+
+Toon wetenschappelijke namen met nomenclatuurproblemen, d.w.z. niet van het `type = SCIENTIFIC` of die niet volledig zijn ontleed. Let op: deze zijn niet noodzakelijk onjuist.
+
+```{r}
+probleem_namen <- parsed_names %>%
+  select(scientificname, type, parsed, parsedpartially, rankmarker) %>%
+  filter(!(type == "SCIENTIFIC" & 
+           parsed == "TRUE" & 
+           parsedpartially == "FALSE"))
+probleem_namen %>% kable
+```
+
+We voegen wetenschappelijke namen toe.
+
+```{r}
+# Voeg wetenschappelijke namen toe
+land_zoetwater_kust_selectie <- land_zoetwater_kust_selectie %>%
+  st_drop_geometry() %>%
+  rename(name = `scientific name`) %>%
+  name_backbone_checklist() %>%
+  select(verbatim_name, verbatim_family, scientificName, species, genus, family, 
+         class, phylum, kingdom) %>%
+  cbind(land_zoetwater_kust_selectie %>%
+          select(-c(`scientific name`, family)))
+
+# Krijg correcte namen met auteurs
+auteurs <- land_zoetwater_kust_selectie %>%
+  pull(species) %>%
+  name_backbone_checklist() %>%
+  select(scientificName) %>%
+  pull()
+
+# Maak aparte kolom voor auteursnamen
+land_zoetwater_kust_selectie <- land_zoetwater_kust_selectie %>%
+  mutate(scientificName = auteurs) %>%
+  rowwise() %>%
+  mutate(author = trimws(gsub(species, "", scientificName)))
+```
+
+Nu lossen we manueel nog de specifieke problemen van verzamelgroepen op.
+
+```{r}
+soortgroepen <- c("Arion rufus / ater", probleem_namen$scientificname)
+
+land_zoetwater_kust_selectie <- land_zoetwater_kust_selectie %>%
+  # Geen info over soortnaam of auteur als het een verzamelgroep is
+  mutate(scientificName = 
+           ifelse(verbatim_name %in% soortgroepen, NA, scientificName),
+         species = 
+           ifelse(verbatim_name %in% soortgroepen, NA, species),
+         author = 
+           ifelse(verbatim_name %in% soortgroepen, NA, author)) %>%
+  # Pas soortnamen aan voor verzamelgroepen
+  mutate(wet_soortnaam = case_when(
+    verbatim_name == "Anisus leucostoma/spirorbis" ~ 
+      "Anisus leucostoma/spirorbis",
+    verbatim_name == "Arion (Carinarion) spec." ~ 
+      "Arion sylvaticus/circumscriptus",
+    verbatim_name == "Arion (Kobeltia) spec." ~ 
+      "Arion hortensis/distinctus",
+    verbatim_name == "Arion (Mesarion) spec." ~ 
+      "Arion fuscus/subfuscus",
+    verbatim_name == "Arion rufus / ater" ~ 
+      "Arion rufus/ater",
+    verbatim_name == "Arion rufus/vulgaris" ~ 
+      "Arion rufus/vulgaris",
+    verbatim_name == "Columella spec." ~ 
+      "Columella edentula/aspera",
+    verbatim_name == "Euconulus spec." ~ 
+      "Euconulus spec.",
+    verbatim_name == "Euglesa/Odhneripisidium/Pisidium spec." ~
+      "Euglesa/Odhneripisidium/Pisidium spec.",
+    verbatim_name == "Oxychilus spec." ~ 
+      "Oxychilus spec.",
+    verbatim_name == "Oxyloma spec." ~ 
+      "Oxyloma elegans/sarsii",
+    verbatim_name == "Stagnicola spec." ~ 
+      "Stagnicola spec.",
+    verbatim_name == "Succineidae indet." ~ 
+      "Succineidae indet.",
+    TRUE ~ scientificName
+  )) %>%
+  # Vul missende data aan op genus level
+  mutate(genus = ifelse(verbatim_name == "Columella spec.", 
+                        "Columella", genus))
+```
+
+Hebben we nog missing data op genus level of hoger?
+
+```{r}
+land_zoetwater_kust_selectie %>% 
+  filter_at(vars(genus, family, class, phylum, kingdom), 
+            any_vars(is.na(.))) %>%
+  select(wet_soortnaam, species, genus, family, class, phylum, kingdom) %>%
+  kable()
+```
+
+Ok.
 
 
 ## Nederlandse soortnamen
@@ -357,9 +463,14 @@ final_df <- land_zoetwater_kust_selectie %>%
 
 # Data exporteren
 
-We slaan de finale dataset op als csv-bestand.
+We slaan de finale dataset van waaremingen op als csv-bestand.
 
 ```{r}
 write_csv(final_df, file = paste(out_path, "waarnemingen_kust.csv", sep = "/"))
 ```
+
+We slaan de soortenlijst op.
+
+
+Ook slaan we een lijst op van de waarnemingen niet gedetermineerd tot op soortniveau.
 
