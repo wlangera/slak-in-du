@@ -452,12 +452,18 @@ land_zoetwater_kust_selectie <- land_zoetwater_kust_selectie %>%
 
 
 ## Preparatie dataset
-- selectie kolommen
-- naam van kolommen
+
+We selecteren de kolommen die voor ons van belang zijn en geven ze logische namen.
 
 ```{r}
 final_df <- land_zoetwater_kust_selectie %>%
-  st_drop_geometry()
+  select(id, datum = date, ned_soortnaam = `species name`, wet_soortnaam, 
+         aantal = number, levensstadium = `life stage`, activiteit = activity, 
+         methode = method, telmethode = `counting method`, locatie = location, 
+         latitude = lat, longitude = lng, lambert_x = `local x`, 
+         lambert_y = `local y`, precisie = accuracy, notities = notes, 
+         is_zeker = `is certain`, link, verbatim_name, species, author, genus, 
+         family, phylum, kingdom)
 ```
 
 
@@ -469,8 +475,23 @@ We slaan de finale dataset van waaremingen op als csv-bestand.
 write_csv(final_df, file = paste(out_path, "waarnemingen_kust.csv", sep = "/"))
 ```
 
-We slaan de soortenlijst op.
+We slaan ook een lijst op van alle gevonden soorten.
 
+```{r}
+soorten_lijst <- final_df %>%
+  distinct(ned_soortnaam, wet_soortnaam, species, author, genus, 
+           family, phylum, kingdom) %>% 
+  arrange(kingdom, phylum, family, wet_soortnaam)
 
-Ook slaan we een lijst op van de waarnemingen niet gedetermineerd tot op soortniveau.
+write_csv(soorten_lijst, file = paste(out_path, "soortenlijst.csv", sep = "/"))
+```
 
+We slaan ten slotte een lijst op van de waarnemingen niet gedetermineerd tot op soortniveau.
+
+```{r}
+ongedetermineerd <- final_df %>%
+  filter(is.na(species))
+
+write_csv(ongedetermineerd, file = paste(out_path, "ongedetermineerd.csv", 
+                                         sep = "/"))
+```

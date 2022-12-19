@@ -127,7 +127,6 @@ slakken_data <- read_csv(paste(out_path, "waarnemingen_kust.csv", sep = "/"))
 
 # Zet om naar sf object
 slakken_data_sf <- slakken_data %>% 
-  mutate(latitude = lat, longitude = lng) %>%
   st_as_sf(coords = c("longitude", "latitude"), crs = 4326)
 
 # Zet crs om naar project crs
@@ -244,7 +243,7 @@ occurrence_utm_grid <- function(soortnaam, resolutie) {
   suppressWarnings({
   # Selecteer dataframe voor soort
   data_soort <- slakken_data_sf_buffer %>%
-    filter(`species name` == soortnaam)
+    filter(ned_soortnaam == soortnaam)
     
   # Neem intersectie met UTM-grid
   intersection <- utm_kust %>% 
