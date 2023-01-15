@@ -159,16 +159,51 @@ intersect_wvl %>%
 ```
 
 
+# Uitbreiding regio kustduinen
+
+We moeten de ecoregio kaart uitbreiden omdat deze incompleet is voor de kustduinen. Dit was het geval voor de haven van Zeebrugge, de Baai van Heist en een deel van de Zwinduinen. 
+
+```{r}
+uitbreiding_kust %>%
+  mutate(OIDN = 1, UIDN = NA, VERSDATUM = NA, TERRID = NA,
+         NAAM = "West-Vlaanderen", NISCODE = NA, NUTS2 = NA, LENGTE = NA,
+         OPPERVL = NA, REGIO = "Ecoregio van de kustduinen", CODE = NA, 
+         HECTARES = NA, ecoregio = "kustduinen") %>%
+  select(-id) %>%
+  rbind(intersect_wvl) %>%
+  mutate(ecoregio = ifelse(OIDN == 1, "kustduinen - uitbreiding", ecoregio)) %>%
+  ggplot() +
+    geom_sf(aes(fill = ecoregio)) +
+    labs(fill = "") +
+    theme(legend.position = "bottom")
+```
+
+Deze uitbreiding werd manueel getekend in QGIS versie ***... referentie*** op basis van een satellietkaart. We voegen deze uitbreiding nu bij de finale laag bekomen in vorige deel om het deelgebied kustduinen uit te breiden.
+
+```{r}
+intersect_wvl2 <- intersect_wvl %>%
+  filter(ecoregio == "kustduinen") %>%
+  st_union(uitbreiding_kust %>% st_buffer(0.5)) %>%
+  select(-id) %>%
+  rbind(intersect_wvl %>% filter(ecoregio == "kustpolders"))
+
+ggplot(intersect_wvl2) +
+    geom_sf(aes(fill = ecoregio)) +
+    labs(fill = "") +
+    theme(legend.position = "bottom")
+```
+
+
 # Overlap UTM-hokken en uitschrijven lijst
 
 Nu overlappen we de laatste laag met de UTM-hokken.
 
 ```{r intersectie-utm}
 # Neem de intersectie van beide lagen voor 5 en 10 km
-intersect_utm1 <- st_intersection(intersect_wvl, utm_1km)
-intersect_utm2 <- st_intersection(intersect_wvl, utm_2km)
-intersect_utm5 <- st_intersection(intersect_wvl, utm_5km)
-intersect_utm10 <- st_intersection(intersect_wvl, utm_10km)
+intersect_utm1 <- st_intersection(intersect_wvl2, utm_1km)
+intersect_utm2 <- st_intersection(intersect_wvl2, utm_2km)
+intersect_utm5 <- st_intersection(intersect_wvl2, utm_5km)
+intersect_utm10 <- st_intersection(intersect_wvl2, utm_10km)
 
 # Controle
 p1 <- intersect_utm1 %>%
@@ -258,7 +293,7 @@ utm_10km_kust <- utm_10km %>%
 # Plots
 utm_1km_kust %>%
   ggplot() +
-    geom_sf(data = intersect_wvl, aes(fill = ecoregio), alpha = 0.5) +
+    geom_sf(data = intersect_wvl2, aes(fill = ecoregio), alpha = 0.5) +
     geom_sf(fill = alpha("black", 0)) +
     coord_sf(datum = proj_crs) +
     labs(title = "UTM 1 km - UTM zone 31N") +
@@ -267,7 +302,7 @@ utm_1km_kust %>%
 
 utm_2km_kust %>%
   ggplot() +
-    geom_sf(data = intersect_wvl, aes(fill = ecoregio), alpha = 0.5) +
+    geom_sf(data = intersect_wvl2, aes(fill = ecoregio), alpha = 0.5) +
     geom_sf(fill = alpha("black", 0)) +
     coord_sf(datum = proj_crs) +
     labs(title = "UTM 2 km - UTM zone 31N") +
@@ -276,7 +311,7 @@ utm_2km_kust %>%
 
 utm_5km_kust %>%
   ggplot() +
-    geom_sf(data = intersect_wvl, aes(fill = ecoregio), alpha = 0.5) +
+    geom_sf(data = intersect_wvl2, aes(fill = ecoregio), alpha = 0.5) +
     geom_sf(fill = alpha("black", 0)) +
     geom_sf_text(aes(label = TAG), size = 1.5) +
     coord_sf(datum = proj_crs) +
@@ -286,7 +321,7 @@ utm_5km_kust %>%
 
 utm_10km_kust %>%
   ggplot() +
-    geom_sf(data = intersect_wvl, aes(fill = ecoregio), alpha = 0.5) +
+    geom_sf(data = intersect_wvl2, aes(fill = ecoregio), alpha = 0.5) +
     geom_sf(fill = alpha("black", 0)) +
     geom_sf_text(aes(label = TAG), size = 2.5) +
     coord_sf(datum = proj_crs) +
@@ -299,8 +334,8 @@ Ten slotte exporteren we de kaartlagen van het onderzoeksgebied en de verschille
 
 ```{r}
 # Output .shp-files
-st_write(intersect_wvl, paste(out_path, "studiegebied_kust.shp", 
-                             sep = "/"), 
+st_write(intersect_wvl2, paste(out_path, "studiegebied_kust.shp", 
+                               sep = "/"), 
          delete_dsn = TRUE)
 st_write(utm_1km_kust, paste(out_path, "utm_1km_kust.shp", 
                              sep = "/"), 
