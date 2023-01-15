@@ -44,6 +44,7 @@ We lezen de volgende kaarten in:
 - UTM 5 km hokken van België
 - UTM 10 km hokken van België
 - ecoregio's van Vlaanderen
+- uitbreiding regio kustduinen
 - provincies van Vlaanderen
 
 ```{r data-selectie, results="hide"}
@@ -58,6 +59,8 @@ utm_5km <- st_read(paste(data_path, "utm5_bel.shp", sep = "/"))
 utm_10km <- st_read(paste(data_path, "utm10_bel.shp", sep = "/"))
 
 ecoregios <- st_read(paste(data_path, "ecoregio2002.shp", sep = "/"))
+uitbreiding_kust <- st_read(paste(data_path, "uitbreiding_ecoregio2002.shp", 
+                            sep = "/"))
 provincies <- st_read(paste(data_path, "Refprv.shp", sep = "/"))
 
 # Referentie coordinatensysteem: UTM zone 31N
@@ -69,6 +72,7 @@ utm_2km <- st_transform(utm_2km, crs = proj_crs)
 utm_5km <- st_transform(utm_5km, crs = proj_crs)
 utm_10km <- st_transform(utm_10km, crs = proj_crs)
 ecoregios <- st_transform(ecoregios, crs = proj_crs)
+uitbreiding_kust <- st_transform(uitbreiding_kust, crs = proj_crs)
 provincies <- st_transform(provincies, crs = proj_crs)
 ```
 
@@ -99,6 +103,12 @@ ecoregios %>%
     geom_sf(aes(fill = ecoregio)) +
     labs(title = "Ecoregio's Vlaanderen", fill = "") +
     theme(legend.position = "bottom")
+
+# Plot uitbreiding ecoregio kustduinen
+uitbreiding_kust %>%
+  ggplot() + 
+    geom_sf() +
+    labs(title = "Uitbreiding ecoregio kustduinen")
 
 # Plot provincies
 provincies %>%
