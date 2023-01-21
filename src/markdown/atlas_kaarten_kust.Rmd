@@ -257,7 +257,7 @@ data <- slakken_data_sf_buffer %>%
   filter(!is.na(species))
 
 for (resolutie in resoluties) {
-  p <- stats_utm_grid(data = slakken_data_sf_buffer, resolutie = resolutie, 
+  p <- stats_utm_grid(data = data, resolutie = resolutie, 
                       variabele = "species") %>%
      ggplot() +
        geom_sf(data = studiegebied_kust_merged, fill = "white") +
@@ -276,6 +276,8 @@ for (resolutie in resoluties) {
   print(p)
 }
 ```
+
+In hokken waar we minder zijn geweest zullen we uiteraard ook minder soorten zien. We zouden een relatieve maat moeten hebben om weer te geven welke hokken de grootste rijkdom hebben. Het aantal soorten per hok delen door het aantal bezoeken per hok is te extreem omdat er soms maar 1x een hok bezocht is en andere keren veel vaker. De controlerende factor zou allicht gevonden kunnen worden door het aantal soorten op de y-as uit te zetten tegenover het aantal bezoeken en te kijken vanaf hoeveel bezoeken de soortenrijkdom afzwakt. Als we die functie kunnen fitten zouden we een correctie kunnen uitvoeren, maar dit zou hier te ver leiden. Bovendien is ons design hier niet op voorbereid om dergelijke maten te berekenen wat zou kunnen leiden tot verkeerde conclusies.
 
 
 # Verspreidingskaarten
