@@ -1,4 +1,4 @@
-stats_utm_grid <- function(soortnaam = NULL, resolutie, variabele = NULL) {
+stats_utm_grid <- function(data, soortnaam = NULL, resolutie, variabele = NULL) {
   # Error handling
   if (!is.numeric(resolutie)) {
     stop("Resolutie een numerieke waarde zijn!")
@@ -21,15 +21,15 @@ stats_utm_grid <- function(soortnaam = NULL, resolutie, variabele = NULL) {
     
     if (is.null(variabele)) {
       # Selecteer dataframe voor soort
-      data <- slakken_data_sf_buffer %>%
+      df <- data %>%
         filter(ned_soortnaam == soortnaam)
     } else {
-      data <- slakken_data_sf_buffer
+      df <- data
     }
     
     # Neem intersectie met UTM-grid
     intersection <- utm_kust %>% 
-      st_intersection(data) %>%
+      st_intersection(df) %>%
       
       # Selecteer per buffer het grootste deel
       mutate(oppervlakte = st_area(geometry)) %>%
@@ -47,12 +47,13 @@ stats_utm_grid <- function(soortnaam = NULL, resolutie, variabele = NULL) {
       out_stats <- intersection %>%
         st_drop_geometry() %>%
         group_by(TAG) %>% 
-        summarise(n = n_distinct(.data[[variabele]]))
+        summarise(n = n_distinct(.data[[variabele]]),
+                  n_bezoeken = n_distinct(datum))
       
       # Join aan UTM grid
       out <- left_join(utm_kust, out_stats, by = "TAG") %>%
-        select(TAG, n) %>%
-        mutate(n = as.integer(ifelse(is.na(n), 0, n)))
+        select(TAG, n, n_bezoeken) %>%
+        mutate(n_bezoeken = as.integer(ifelse(is.na(n), 0, n)))
     }
     
     # Return
