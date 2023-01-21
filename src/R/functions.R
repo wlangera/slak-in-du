@@ -70,8 +70,8 @@ stats_utm_grid <- function(data, soortnaam = NULL, resolutie, variabele = NULL) 
       # Add variable to resolution grid if species is present
       out <- utm_kust %>% 
         left_join(bezoeken, by = "TAG") %>%
-        mutate(occurrence = ifelse(TAG %in% utm_list, "present", 
-                                   ifelse(n_bezoeken == 0, NA, "absent")))
+        mutate(occurrence = ifelse(TAG %in% utm_list, "aanwezig", 
+                                   ifelse(n_bezoeken == 0, NA, "afwezig")))
     } else {
       out_stats <- intersection %>%
         st_drop_geometry() %>%
