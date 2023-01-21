@@ -24,9 +24,7 @@ opts_chunk$set(
 opts_knit$set(root.dir = here::here())
 
 library(tidyverse)
-library(gridExtra)
 library(sf)
-library(mapview)
 
 source(here("src", "R", "functions.R"))
 ```
@@ -218,16 +216,17 @@ utm_5km_kust %>%
     mytheme
 ```
 
+# Data exploratie
+## Zoekinspanning
 
-# Zoekinspanning
-
-Voor we de verspreidingskaarten maken, is het belangrijk om een idee te hebben waar er precies is gezocht en met welke inspanning. Dit zal de interpretatie van de kaarten verbeteren. De afwezigheid van een soort kan namelijk zowel zijn omdat we de soort niet vonden, maar ook omdat we nooit in dat hok gezocht hebben. Zoekinspanning wordt hier gemeten als het aantal dagen per UTM-hok.
+Voor we de verspreidingskaarten maken, is het belangrijk om een idee te hebben waar er precies is gezocht en met welke inspanning. Dit zal de interpretatie van de kaarten verbeteren. De afwezigheid van een soort kan namelijk zowel zijn omdat we de soort niet vonden, maar ook omdat we nooit in dat hok gezocht hebben. Zoekinspanning wordt hier gemeten als het aantal dagen per UTM-hok. Hokken waar we niet zijn geweest zijn niet gekleurd (grijs).
 
 ```{r}
 resoluties <- c(1, 2, 5, 10)
 
 for (resolutie in resoluties) {
-  p <- stats_utm_grid(resolutie = resolutie, variabele = "datum") %>%
+  p <- stats_utm_grid(data = slakken_data_sf_buffer, resolutie = resolutie, 
+                      variabele = "datum") %>%
      ggplot() +
        geom_sf(data = studiegebied_kust_merged, fill = "white") +
        geom_sf(aes(fill =  n), size = 0.7, alpha = 0.8, 
@@ -235,6 +234,38 @@ for (resolutie in resoluties) {
        scale_fill_gradient(low = "red", high = "green") + 
        geom_sf(data = utm_10km_kust, fill =  alpha("white", 0), size = 0.7) +
        labs(title = "Aantal bezoeken per UTM hok", fill = "Aantal",
+            subtitle = paste0("UTM ", resolutie, " km")) +
+       coord_sf(datum = proj_crs) +
+       mytheme
+  
+  if (resolutie == 10) {
+    p <- p + geom_sf_text(aes(label = n))
+  }
+  
+  print(p)
+}
+```
+
+## Soortenrijkdom
+
+We tellen het aantal soorten per kilometerhok. We beschouwen enkel waarnemingen die tot op soort zijn gedetermineerd. Soortengroepen zijn ook niet meegerekend. Hokken waar we niet zijn geweest zijn niet gekleurd (grijs).
+
+```{r}
+resoluties <- c(1, 2, 5, 10)
+
+data <- slakken_data_sf_buffer %>%
+  filter(!is.na(species))
+
+for (resolutie in resoluties) {
+  p <- stats_utm_grid(data = slakken_data_sf_buffer, resolutie = resolutie, 
+                      variabele = "species") %>%
+     ggplot() +
+       geom_sf(data = studiegebied_kust_merged, fill = "white") +
+       geom_sf(aes(fill =  n), size = 0.7, alpha = 0.8, 
+               colour = alpha("white", 0)) +
+       scale_fill_gradient(low = "red", high = "green") + 
+       geom_sf(data = utm_10km_kust, fill =  alpha("white", 0), size = 0.7) +
+       labs(title = "Aantal soorten per UTM hok", fill = "Aantal",
             subtitle = paste0("UTM ", resolutie, " km")) +
        coord_sf(datum = proj_crs) +
        mytheme
@@ -261,7 +292,8 @@ for (soort in 1:3) {
   wet_naam <- soorten$wet_soortnaam[soort]
   for (resolutie in resoluties) {
     print(
-    stats_utm_grid(soortnaam, resolutie) %>%
+    stats_utm_grid(data = slakken_data_sf_buffer, soortnaam = soortnaam, 
+                   resolutie = resolutie) %>%
       ggplot() +
         geom_sf(data = studiegebied_kust_merged, fill = "white") +
         geom_sf(aes(fill = occurrence), colour = alpha("white", 0)) +
