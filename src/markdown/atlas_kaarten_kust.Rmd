@@ -216,10 +216,11 @@ utm_5km_kust %>%
     mytheme
 ```
 
+
 # Data exploratie
 ## Zoekinspanning
 
-Voor we de verspreidingskaarten maken, is het belangrijk om een idee te hebben waar er precies is gezocht en met welke inspanning. Dit zal de interpretatie van de kaarten verbeteren. De afwezigheid van een soort kan namelijk zowel zijn omdat we de soort niet vonden, maar ook omdat we nooit in dat hok gezocht hebben. Zoekinspanning wordt hier gemeten als het aantal dagen per UTM-hok. Hokken waar we niet zijn geweest zijn niet gekleurd (grijs).
+Voor we de verspreidingskaarten maken, is het belangrijk om een idee te hebben waar er precies is gezocht en met welke inspanning. Dit zal de interpretatie van de kaarten verbeteren. Zoekinspanning wordt hier gemeten als het aantal dagen per UTM-hok. Hokken waar we niet zijn geweest, zijn niet gekleurd (grijs).
 
 ```{r}
 resoluties <- c(1, 2, 5, 10)
@@ -229,8 +230,7 @@ for (resolutie in resoluties) {
                       variabele = "datum") %>%
      ggplot() +
        geom_sf(data = studiegebied_kust_merged, fill = "white") +
-       geom_sf(aes(fill =  n), size = 0.7, alpha = 0.8, 
-               colour = alpha("white", 0)) +
+       geom_sf(aes(fill =  n), alpha = 0.8, colour = alpha("white", 0)) +
        scale_fill_gradient(low = "red", high = "green") + 
        geom_sf(data = utm_10km_kust, fill =  alpha("white", 0), size = 0.7) +
        labs(title = "Aantal bezoeken per UTM hok", fill = "Aantal",
@@ -248,7 +248,7 @@ for (resolutie in resoluties) {
 
 ## Soortenrijkdom
 
-We tellen het aantal soorten per kilometerhok. We beschouwen enkel waarnemingen die tot op soort zijn gedetermineerd. Soortengroepen zijn ook niet meegerekend. Hokken waar we niet zijn geweest zijn niet gekleurd (grijs).
+We tellen het aantal soorten per kilometerhok. We beschouwen enkel waarnemingen die tot op soort zijn gedetermineerd. Soortengroepen zijn dus ook niet meegerekend. Hokken waar we niet zijn geweest, zijn niet gekleurd (grijs).
 
 ```{r}
 resoluties <- c(1, 2, 5, 10)
@@ -261,8 +261,7 @@ for (resolutie in resoluties) {
                       variabele = "species") %>%
      ggplot() +
        geom_sf(data = studiegebied_kust_merged, fill = "white") +
-       geom_sf(aes(fill =  n), size = 0.7, alpha = 0.8, 
-               colour = alpha("white", 0)) +
+       geom_sf(aes(fill =  n), alpha = 0.8, colour = alpha("white", 0)) +
        scale_fill_gradient(low = "red", high = "green") + 
        geom_sf(data = utm_10km_kust, fill =  alpha("white", 0), size = 0.7) +
        labs(title = "Aantal soorten per UTM hok", fill = "Aantal",
@@ -296,13 +295,15 @@ for (soort in 1:3) {
                    resolutie = resolutie) %>%
       ggplot() +
         geom_sf(data = studiegebied_kust_merged, fill = "white") +
-        geom_sf(aes(fill = occurrence), colour = alpha("white", 0)) +
-        scale_fill_manual(values = c(alpha("white", 0), alpha("red", 0.7))) +
+        geom_sf(aes(fill = occurrence), colour = alpha("white", 0), 
+                alpha = 0.8) +
+        scale_fill_manual(values = c(alpha("green", 0.7), alpha("red", 0.7)),
+                          labels = c("aanwezig", "afwezig", "niet bezocht")) +
         geom_sf(data = utm_10km_kust, fill =  alpha("white", 0), size = 0.7) +
-        labs(title = paste0(soortnaam, " - ", wet_naam), 
+        labs(title = paste0(soortnaam, " - ", wet_naam), fill = "Legende",
              subtitle = paste0("UTM ", resolutie, " km")) +
         coord_sf(datum = proj_crs) +
-        theme(legend.position = "") +
+        theme(legend.justification = c(1, 0), legend.position = c(1, 0)) +
         mytheme
     )
   }
