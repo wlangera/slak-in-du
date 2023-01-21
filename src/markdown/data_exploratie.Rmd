@@ -45,9 +45,11 @@ slakken_data <- read_csv(paste(out_path, "waarnemingen_kust.csv", sep = "/"))
 ```
 
 
-# Waarnemingen
+# Enkele cijfers
 
 
+# Samenvattende tabel
 
+Overzicht welke soorten in welk hok en welke toestand.
 
-
+maak aparte functie met output cf bezoeken: get_visit_stats
