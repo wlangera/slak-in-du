@@ -78,7 +78,7 @@ studiegebied_kust_merged %>%
     mytheme
 ```
 
-We lezen de waarnemingendata in van Slak-in-Du.
+We lezen de waarnemingendata in van Slak-in-Du. Laatste download 21-01-2023.
 
 ```{r}
 # Laad data
@@ -267,7 +267,7 @@ land_zoetwater_kust_selectie <- land_zoetwater_kust %>%
 # Data voorbereiden
 ## Controleer accuraatheid waarnemingen
 
-Er is altijd onzekerheid op de exacte locatie van een waarneming. We zien een groot aantal waarnemingen met een accuraatheid groter dan 25:
+Er is altijd onzekerheid op de exacte locatie van een waarneming. We zien een groot aantal waarnemingen met een accuraatheid groter dan 100 m (arbitrair maximum bepaald na communicatie via mail):
 
 ```{r}
 land_zoetwater_kust_selectie %>%
@@ -277,15 +277,29 @@ land_zoetwater_kust_selectie %>%
   kable()
 ```
 
-Deze moeten gecontroleerd worden:
+De waarnemingen van 26-05-2018 werden door Hans De Blauwe ingegeven en zetten we voor de zekerheid op 100 m nauwkeurigheid. De andere waarnemingen > 100 m werden door Franky gecontroleerd en zijn correct. Deze zetten we op 25 m. Alle waarnemingen met nauwkeurigheid < 25 m zetten we ook op 25 m (arbitrair minimum).
+
+```{r}
+land_zoetwater_kust_selectie <- land_zoetwater_kust_selectie %>%
+  mutate(accuracy = case_when(
+    accuracy < 25 ~ 25,
+    accuracy > 100 & date == "2018-05-26" ~ 100,
+    accuracy > 100 & date != "2018-05-26" ~ 25,
+    TRUE ~ accuracy
+  ))
+```
+
+De verdeling is nu als volgt:
 
 ```{r}
 land_zoetwater_kust_selectie %>%
   st_drop_geometry() %>%
-  filter(accuracy > 25) %>%
-  select(date, `species name`, location, accuracy, link) %>%
-  arrange(desc(accuracy))
+  count(accuracy) %>%
+  arrange(accuracy) %>%
+  kable()
 ```
+
+In de data exploratie kunnen we dit visualiseren.
 
 
 ## Wetenschappelijke soortnamen
