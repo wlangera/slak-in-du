@@ -460,7 +460,65 @@ land_zoetwater_kust_selectie <- land_zoetwater_kust_selectie %>%
 ```
 
 
-## Preparatie dataset
+## Extra kolom toestand waarneming
+
+In de kolom `life stage` vinden we de volgende informatie:
+
+```{r}
+land_zoetwater_kust_selectie %>%
+  count(`life stage`) %>%
+  arrange(`life stage`) %>%
+  kable()
+```
+
+In de kolom `activity` vinden we de volgende informatie:
+
+```{r} 
+land_zoetwater_kust_selectie %>%
+  count(activity) %>%
+  arrange(activity) %>%
+  kable()
+```
+
+Verder zit er ook informatie over elke waarneming in `notes`.
+
+We willen een kolom `toestand` toevoegen met de 3 categoriën. Deze zijn te vinden in verschillende kolommen:
+
+-   levend
+  -   `life stage`: "levend dier" OF
+  -   `activity`: "levend dier" OF
+  -   `notes`: zoek voor woord "levend"
+-   lege schelp
+  -   `life stage`: ("doublet" OF "lege schelp of losse klep") OF
+  -   `activity`: "dood" OF
+  -   `notes`: zoek voor woord "vers" OF "oud" OF "dood" OF "doublet" OF "fragment" OF "leeg" OF "kokerjuffer" OF alleenstaande V (en verkeerde schrijfwijzes)
+-   onbekend
+  -   rest
+
+```{r}
+land_zoetwater_kust_selectie <- land_zoetwater_kust_selectie %>%
+  mutate(toestand = case_when(
+    `life stage` == "levend dier" | activity == "levend dier" | 
+      grepl(pattern = "levend", tolower(notes)) 
+         ~ "levend dier",
+    `life stage` %in% c("doublet", "lege schelp of losse klep") | 
+      activity == "dood" | 
+      grepl(pattern = paste0("vers|o.?ud|dood|doublet|(frag|graf)ment|leeg|",
+                             "kokerjuf|\\sv(\\s|\\/)"), tolower(notes)) 
+         ~ "lege schelp",
+    TRUE ~ "onbekend")
+    )
+```
+
+```{r} 
+land_zoetwater_kust_selectie %>%
+  count(toestand) %>%
+  arrange(toestand) %>%
+  kable()
+```
+
+
+# Preparatie dataset
 
 We selecteren de kolommen die voor ons van belang zijn en geven ze logische namen.
 
@@ -468,11 +526,11 @@ We selecteren de kolommen die voor ons van belang zijn en geven ze logische name
 final_df <- land_zoetwater_kust_selectie %>%
   select(id, datum = date, ned_soortnaam = `species name`, wet_soortnaam, 
          aantal = number, levensstadium = `life stage`, activiteit = activity, 
-         methode = method, telmethode = `counting method`, locatie = location, 
-         latitude = lat, longitude = lng, lambert_x = `local x`, 
-         lambert_y = `local y`, precisie = accuracy, notities = notes, 
-         is_zeker = `is certain`, link, verbatim_name, species, author, genus, 
-         family, class, phylum, kingdom)
+         toestand, methode = method, telmethode = `counting method`, 
+         locatie = location, latitude = lat, longitude = lng, 
+         lambert_x = `local x`, lambert_y = `local y`, precisie = accuracy, 
+         notities = notes, is_zeker = `is certain`, link, verbatim_name, 
+         species, author, genus, family, class, phylum, kingdom)
 ```
 
 
