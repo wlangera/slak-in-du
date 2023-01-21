@@ -118,7 +118,7 @@ utm_10km_kust %>%
     mytheme
 ```
 
-We lezen de waarnemingendata in van Slak-in-Du na data selectie en preparatie. We trekken een buffer rond elke waarneming van 25 m.
+We lezen de waarnemingendata in van Slak-in-Du na data selectie en preparatie. We trekken een buffer rond elke waarneming die overeenkomt met hun nauwkeurigheid.
 
 ```{r}
 # Laad data
@@ -132,9 +132,9 @@ slakken_data_sf <- slakken_data %>%
 slakken_data_sf <- slakken_data_sf %>%
   st_transform(crs = proj_crs)
 
-# Voeg buffer toe van 25 m radius
+# Voeg buffer toe
 slakken_data_sf_buffer <- slakken_data_sf %>%
-  st_buffer(25)
+  st_buffer(slakken_data_sf$precisie)
 ```
 
 
