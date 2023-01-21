@@ -1,3 +1,27 @@
+get_visit_stats <- function(data, utm_kust) {
+  # Neem intersectie met UTM-grid
+  intersection <- utm_kust %>% 
+    st_intersection(data) %>%
+    
+    # Selecteer per buffer het grootste deel
+    mutate(oppervlakte = st_area(geometry)) %>%
+    group_by(id) %>%
+    filter(oppervlakte == max(oppervlakte))
+  
+  out_stats <- intersection %>%
+    st_drop_geometry() %>%
+    group_by(TAG) %>% 
+    summarise(n_bezoeken = n_distinct(datum))
+  
+  out <- utm_kust %>%
+    st_drop_geometry() %>%
+    left_join(out_stats, by = "TAG") %>%
+    select(TAG, n_bezoeken) %>%
+    mutate(n_bezoeken = as.integer(ifelse(is.na(n_bezoeken), 0, n_bezoeken)))
+  
+  return(out)
+}
+
 stats_utm_grid <- function(data, soortnaam = NULL, resolutie, variabele = NULL) {
   # Error handling
   if (!is.numeric(resolutie)) {
@@ -37,12 +61,17 @@ stats_utm_grid <- function(data, soortnaam = NULL, resolutie, variabele = NULL) 
       filter(oppervlakte == max(oppervlakte))
     
     if (is.null(variabele)) {
+      # Bereken welke UTM-hokken zijn bezocht
+      bezoeken <- get_visit_stats(data, utm_kust)
+      
       # Lijst met UTM-hokken waar de soort voorkomt
       utm_list <- unique(intersection$TAG)
       
       # Add variable to resolution grid if species is present
       out <- utm_kust %>% 
-        mutate(occurrence = ifelse(TAG %in% utm_list, "present", "absent"))
+        left_join(bezoeken, by = "TAG") %>%
+        mutate(occurrence = ifelse(TAG %in% utm_list, "present", 
+                                   ifelse(n_bezoeken == 0, NA, "absent")))
     } else {
       out_stats <- intersection %>%
         st_drop_geometry() %>%
@@ -50,10 +79,11 @@ stats_utm_grid <- function(data, soortnaam = NULL, resolutie, variabele = NULL) 
         summarise(n = n_distinct(.data[[variabele]]),
                   n_bezoeken = n_distinct(datum))
       
-      # Join aan UTM grid
+      # Join counts aan UTM grid
       out <- left_join(utm_kust, out_stats, by = "TAG") %>%
         select(TAG, n, n_bezoeken) %>%
-        mutate(n_bezoeken = as.integer(ifelse(is.na(n), 0, n)))
+        mutate(n_bezoeken = as.integer(ifelse(is.na(n_bezoeken), 0, 
+                                              n_bezoeken)))
     }
     
     # Return
