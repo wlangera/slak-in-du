@@ -217,10 +217,12 @@ utm_5km_kust %>%
 ```
 
 
-# Verspreidingskaarten
+# Zoekinspanning
+
+Voor we de verspreidingskaarten maken, is het belangrijk om een idee te hebben waar er precies is gezocht en met welke inspanning. Dit zal de interpretatie van de kaarten verbeteren. De afwezigheid van een soort kan namelijk zowel zijn omdat we de soort niet vonden, maar ook omdat we nooit in dat hok gezocht hebben. Zoekinspanning wordt hier gemeten als het aantal dagen per UTM-hok.
 
 ```{r}
-occurrence_utm_grid <- function(soortnaam, resolutie) {
+stats_utm_grid <- function(soortnaam = NULL, resolutie, variabele = NULL) {
   # Error handling
   if (!is.numeric(resolutie)) {
     stop("Resolutie een numerieke waarde zijn!")
@@ -240,31 +242,75 @@ occurrence_utm_grid <- function(soortnaam, resolutie) {
     utm_kust <- utm_10km_kust
   }
   suppressWarnings({
-  # Selecteer dataframe voor soort
-  data_soort <- slakken_data_sf_buffer %>%
-    filter(ned_soortnaam == soortnaam)
+  
+  if (is.null(variabele)) {
+    # Selecteer dataframe voor soort
+    data <- slakken_data_sf_buffer %>%
+      filter(ned_soortnaam == soortnaam)
+  } else {
+    data <- slakken_data_sf_buffer
+  }
     
   # Neem intersectie met UTM-grid
   intersection <- utm_kust %>% 
-    st_intersection(data_soort) %>%
+    st_intersection(data) %>%
 
   # Selecteer per buffer het grootste deel
     mutate(oppervlakte = st_area(geometry)) %>%
     group_by(id) %>%
     filter(oppervlakte == max(oppervlakte))
   
-  # Lijst met UTM-hokken waar de soort voorkomt
-  utm_list <- unique(intersection$TAG)
-  
-  # Add variable to resolution grid if species is present
-  utm_grid_final <- utm_kust %>% 
-    mutate(occurrence = ifelse(TAG %in% utm_list, "present", "absent"))
+  if (is.null(variabele)) {
+    # Lijst met UTM-hokken waar de soort voorkomt
+    utm_list <- unique(intersection$TAG)
+    
+    # Add variable to resolution grid if species is present
+    out <- utm_kust %>% 
+      mutate(occurrence = ifelse(TAG %in% utm_list, "present", "absent"))
+  } else {
+    out_stats <- intersection %>%
+      st_drop_geometry() %>%
+      group_by(TAG) %>% 
+      summarise(n = n_distinct(.data[[variabele]]))
+    
+    # Join aan UTM grid
+    out <- left_join(utm_kust, out_stats, by = "TAG") %>%
+      select(TAG, n) %>%
+      mutate(n = as.integer(ifelse(is.na(n), 0, n)))
+  }
   
   # Return
-  return(utm_grid_final)
+  return(out)
   })
 }
 ```
+
+```{r}
+resoluties <- c(1, 2, 5, 10)
+
+for (resolutie in resoluties) {
+  p <- stats_utm_grid(resolutie = resolutie, variabele = "datum") %>%
+     ggplot() +
+       geom_sf(data = studiegebied_kust_merged, fill = "white") +
+       geom_sf(aes(fill =  n), size = 0.7, alpha = 0.8, 
+               colour = alpha("white", 0)) +
+       scale_fill_gradient(low = "red", high = "green") + 
+       geom_sf(data = utm_10km_kust, fill =  alpha("white", 0), size = 0.7) +
+       labs(title = "Aantal bezoeken per UTM hok", fill = "Aantal",
+            subtitle = paste0("UTM ", resolutie, " km")) +
+       coord_sf(datum = proj_crs) +
+       mytheme
+  
+  if (resolutie == 10) {
+    p <- p + geom_sf_text(aes(label = n))
+  }
+  
+  print(p)
+}
+```
+
+
+# Verspreidingskaarten
 
 ```{r}
 soorten <- slakken_data_sf_buffer %>% 
@@ -277,7 +323,7 @@ for (soort in 1:3) {
   wet_naam <- soorten$wet_soortnaam[soort]
   for (resolutie in resoluties) {
     print(
-    occurrence_utm_grid(soortnaam, resolutie) %>%
+    stats_utm_grid(soortnaam, resolutie) %>%
       ggplot() +
         geom_sf(data = studiegebied_kust_merged, fill = "white") +
         geom_sf(aes(fill = occurrence), colour = alpha("white", 0)) +
