@@ -31,14 +31,21 @@ stats_utm_grid <- function(data, soortnaam = NULL, resolutie, variabele = NULL) 
     stop("Resolutie moet op 1, 2, 5 of 10 km schaal zijn!")
   }
   
+  path <- paste0("C:/Users/WARD/Documents/slakken/Slak-in-Du/analyses/", 
+                 "slak-in-du/data/processed")
+  
   # Neem UTM-grid studiegebied afhankelijk van resolutie
   if (resolutie == 1) {
+    utm_1km_kust <- st_read(paste(path, "utm_1km_kust.shp", sep = "/"))
     utm_kust <- utm_1km_kust
   } else if (resolutie == 2) {
+    utm_2km_kust <- st_read(paste(path, "utm_2km_kust.shp", sep = "/"))
     utm_kust <- utm_2km_kust
   } else if (resolutie == 5) {
+    utm_5km_kust <- st_read(paste(path, "utm_5km_kust.shp", sep = "/"))
     utm_kust <- utm_5km_kust
   } else {
+    utm_10km_kust <- st_read(paste(path, "utm_10km_kust.shp", sep = "/"))
     utm_kust <- utm_10km_kust
   }
   suppressWarnings({
