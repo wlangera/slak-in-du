@@ -36,16 +36,20 @@ stats_utm_grid <- function(data, soortnaam = NULL, resolutie, variabele = NULL) 
   
   # Neem UTM-grid studiegebied afhankelijk van resolutie
   if (resolutie == 1) {
-    utm_1km_kust <- st_read(paste(path, "utm_1km_kust.shp", sep = "/"))
+    utm_1km_kust <- st_read(paste(path, "utm_1km_kust.shp", sep = "/"),
+                            quiet = TRUE)
     utm_kust <- utm_1km_kust
   } else if (resolutie == 2) {
-    utm_2km_kust <- st_read(paste(path, "utm_2km_kust.shp", sep = "/"))
+    utm_2km_kust <- st_read(paste(path, "utm_2km_kust.shp", sep = "/"),
+                            quiet = TRUE)
     utm_kust <- utm_2km_kust
   } else if (resolutie == 5) {
-    utm_5km_kust <- st_read(paste(path, "utm_5km_kust.shp", sep = "/"))
+    utm_5km_kust <- st_read(paste(path, "utm_5km_kust.shp", sep = "/"),
+                            quiet = TRUE)
     utm_kust <- utm_5km_kust
   } else {
-    utm_10km_kust <- st_read(paste(path, "utm_10km_kust.shp", sep = "/"))
+    utm_10km_kust <- st_read(paste(path, "utm_10km_kust.shp", sep = "/"),
+                             quiet = TRUE)
     utm_kust <- utm_10km_kust
   }
   suppressWarnings({
