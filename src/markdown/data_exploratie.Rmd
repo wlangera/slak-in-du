@@ -79,25 +79,8 @@ soortenlijst <- slakken_data %>%
   distinct(ned_soortnaam) %>%
   pull(ned_soortnaam)
 
-test <- lapply(soortenlijst, function(i) {
-  count_df <- stats_utm_grid(data = slakken_data_sf_buffer, soortnaam = i, 
-                             resolutie = 10) %>%
-    st_drop_geometry()
-  
-  counts <- count_df %>%
-    count(occurrence) %>% 
-    filter(!is.na(occurrence))
-  
-  tags <- count_df %>% 
-    filter(occurrence == "aanwezig") %>% 
-    arrange(TAG) %>% 
-    pull(TAG)
-  
-  aanwezig <- counts[counts$occurrence == "aanwezig", "n"]
-  afwezig <- counts[counts$occurrence == "afwezig", "n"]
-  
-  list(i, aanwezig / (aanwezig + afwezig), paste0(tags, collapse = ", "))
-})
+test <- lapply(soortenlijst, get_prevalence, data = slakken_data_sf_buffer)
+test2 <- lapply(soortenlijst, get_life_stats, data = slakken_data_sf_buffer)
 
 df <- do.call(what = rbind.data.frame, args = test)
 names(df) <- c("ned_soortnaam", "prop_utm", "utm_hokken")
