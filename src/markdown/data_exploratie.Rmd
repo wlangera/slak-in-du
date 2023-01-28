@@ -25,6 +25,7 @@ opts_knit$set(root.dir = here::here())
 
 library(tidyverse)
 library(sf)
+library(lubridate)
 
 source(here("src", "R", "functions.R"))
 ```
@@ -66,6 +67,25 @@ slakken_data_sf_buffer <- slakken_data_sf %>%
 
 # Enkele cijfers
 
+De eerste waarneming dateert van `r min(slakken_data$datum)` en de laatste van `r max(slakken_data$datum)` dit is een verschil van `r difftime(max(slakken_data$datum), min(slakken_data$datum))` dagen.
+
+```{r}
+slakken_data %>%
+  mutate(jaar = year(datum)) %>%
+  group_by(jaar) %>%
+  summarise("aantal waarnemingen" = n()) %>%
+  kable()
+```
+
+```{r}
+ggplot(slakken_data) +
+  geom_bar(aes(x = floor_date(datum, "month")), fill = "firebrick", 
+           colour = "black") +
+  scale_x_date(date_breaks = "1 year", date_labels = "%Y") +
+  labs(x = "", y = "aantal waarnemingen per maand") +
+  theme(panel.grid.minor.x = element_blank())
+```
+
 
 # Samenvattende tabel
 
@@ -105,11 +125,9 @@ df_tot <- full_join(prev_df, toest_df, by = "ned_soortnaam") %>%
   distinct()
 ```
 
-
 ```{r}
 ggplot(df_tot) +
-  geom_bar(aes(x = prevalentie)) +
+  geom_bar(aes(x = prevalentie), fill = "firebrick", colour = "black") +
   scale_x_continuous(limits = c(0, 1)) +
   labs(y = "aantal soorten")
 ```
-
