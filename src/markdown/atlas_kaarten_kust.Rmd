@@ -75,7 +75,9 @@ mytheme <- theme(panel.grid.major = element_line(color = "grey",
                                                  linetype = "dashed", 
                                                  size = 0.3),
                  panel.background = element_rect(fill = "aliceblue"),
-                 axis.title = element_blank())
+                 axis.title = element_blank(),
+                 axis.ticks = element_blank(),
+                 axis.text = element_blank())
 
 # Plot kaarten
 studiegebied_kust %>%
@@ -285,12 +287,13 @@ In hokken waar we minder zijn geweest zullen we uiteraard ook minder soorten zie
 ```{r}
 soorten <- slakken_data_sf_buffer %>% 
   st_drop_geometry() %>%
+  arrange(class, family, wet_soortnaam) %>%
   distinct(ned_soortnaam, wet_soortnaam)
 resoluties <- c(1, 2, 5, 10)
 
-for (soort in 1:3) {
-  soortnaam <- soorten$ned_soortnaam[soort]
-  wet_naam <- soorten$wet_soortnaam[soort]
+for (i in seq_len(nrow(soorten))) {
+  soortnaam <- soorten$ned_soortnaam[i]
+  wet_naam <- soorten$wet_soortnaam[i]
   for (resolutie in resoluties) {
     print(
     stats_utm_grid(data = slakken_data_sf_buffer, soortnaam = soortnaam, 
