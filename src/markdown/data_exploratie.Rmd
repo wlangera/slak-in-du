@@ -67,7 +67,7 @@ slakken_data_sf_buffer <- slakken_data_sf %>%
 
 # Enkele cijfers
 
-De eerste waarneming dateert van `r min(slakken_data$datum)` en de laatste van `r max(slakken_data$datum)` dit is een verschil van `r difftime(max(slakken_data$datum), min(slakken_data$datum))` dagen.
+De eerste waarneming dateert van `r min(slakken_data$datum)` en de laatste van `r max(slakken_data$datum)` dit is een verschil van `r difftime(max(slakken_data$datum), min(slakken_data$datum))` dagen. In totaal hebben we `r nrow(slakken_data)` waarnemingen.
 
 ```{r}
 slakken_data %>%
@@ -123,7 +123,14 @@ df_tot <- full_join(prev_df, toest_df, by = "ned_soortnaam") %>%
   select("ned_soortnaam", "wet_soortnaam", "prevalentie", "utm_hokken", 
          "levend_dier", "lege_schelp", "onbekend") %>%
   distinct()
+
+df_tot %>%
+  kable()
+
+# Exporteer als .xlsx
 ```
+
+De verdeling van de prevalenties ziet er als volgt uit.
 
 ```{r}
 ggplot(df_tot) +
