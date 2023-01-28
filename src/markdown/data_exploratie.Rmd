@@ -69,9 +69,13 @@ slakken_data_sf_buffer <- slakken_data_sf %>%
 
 # Samenvattende tabel
 
-Overzicht welke soorten in welk hok en welke toestand.
+We maken een overzichtstabel waarbij we voor elke soort de prevalentie berekenen. De prevalentie $p$ is de proportie van UTM-hokken waar de soort is gevonden $n_{aanwezig}$ ten opzichte van het totaal aantal bezochte hokken $n_{bezocht}$.
 
-maak aparte functie met output cf bezoeken: get_visit_stats
+$$
+p = \frac{n_{aanwezig}}{n_{bezocht}}
+$$
+
+We geven ook aan om welke UTM-hokken het gaat. Daarnaast voegen we ook kolommen toe in welke toestand (levend, lege schelp of onbekend) de soort is aangetroffen in welke hokken.
 
 ```{r}
 soortenlijst <- slakken_data %>%
@@ -79,15 +83,25 @@ soortenlijst <- slakken_data %>%
   distinct(ned_soortnaam) %>%
   pull(ned_soortnaam)
 
-test <- lapply(soortenlijst, get_prevalence, data = slakken_data_sf_buffer)
-test2 <- lapply(soortenlijst, get_life_stats, data = slakken_data_sf_buffer)
+# Prevalentie
+prevalenties <- lapply(soortenlijst, get_prevalence, 
+                       data = slakken_data_sf_buffer)
 
-df <- do.call(what = rbind.data.frame, args = test)
-names(df) <- c("ned_soortnaam", "prop_utm", "utm_hokken")
+prev_df <- do.call(what = rbind.data.frame, args = prevalenties)
+names(prev_df) <- c("ned_soortnaam", "prevalentie", "utm_hokken")
 
-df %>% arrange(desc(prop_utm)) %>%
-  kable()
+# UTM-hokken toestand
+toestanden <- lapply(soortenlijst, get_life_stats, 
+                     data = slakken_data_sf_buffer)
 
-hist(df$prop_utm)
+toest_df <- do.call(what = rbind.data.frame, args = toestanden)
+names(toest_df) <- c("ned_soortnaam", "levend_dier", "lege_schelp", "onbekend")
+
+# Voeg samen en voeg wetenschappelijke soortnaam toe
+df_tot <- full_join(prev_df, toest_df, by = "ned_soortnaam") %>%
+  left_join(slakken_data_sf_buffer, by = "ned_soortnaam") %>%
+  select("ned_soortnaam", "wet_soortnaam", "prevalentie", "utm_hokken", 
+         "levend_dier", "lege_schelp", "onbekend") %>%
+  distinct()
 ```
 
