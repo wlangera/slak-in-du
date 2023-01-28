@@ -105,3 +105,11 @@ df_tot <- full_join(prev_df, toest_df, by = "ned_soortnaam") %>%
   distinct()
 ```
 
+
+```{r}
+ggplot(df_tot) +
+  geom_bar(aes(x = prevalentie)) +
+  scale_x_continuous(limits = c(0, 1)) +
+  labs(y = "aantal soorten")
+```
+
