@@ -86,6 +86,43 @@ ggplot(slakken_data) +
   theme(panel.grid.minor.x = element_blank())
 ```
 
+In totaal behoren de waarnemingen tot `r length(unique(slakken_data$wet_soortnaam))` taxa waarvan `r length(unique(slakken_data$species))` gedetermineert tot op soortniveau. Relatieve rang-abundatie curves kunnen een idee geven van soortenrijkdom en species evenness. Hoewel wij niet over abundanties beschikken, kunnen het relatief aantal waarnemingen wel een goed beeld geven. We beschouwen enkel de soorten gedetermineerd op soortniveau. Taxon rang: 1 = meest waarngenomen soort, `r length(unique(slakken_data$species))` = minst waarngenomen soort.
+
+```{r}
+rel_obs <- slakken_data %>%
+  filter(!is.na(species)) %>%
+  group_by(ned_soortnaam, wet_soortnaam) %>%
+  summarise(n = n()) %>%
+  ungroup() %>%
+  arrange(desc(n)) %>%
+  mutate(rel_n = n / nrow(slakken_data),
+         rel_n_scaled = n / first(n),
+         cum_n = cumsum(n), 
+         cum_n_scaled = cum_n / (last(cum_n)/first(cum_n))) %>%
+  rowid_to_column("rang")
+
+rel_obs %>%
+  ggplot() +
+    geom_bar(aes(x = rang, y = n), stat = "identity", fill = "firebrick", 
+           colour = "black") +
+    geom_line(aes(x = rang, y = cum_n_scaled), size = 1, 
+              colour = "cornflowerblue") +
+    labs(x = "taxon rang", y = "aantal waarnemingen") +
+    scale_x_continuous(breaks = c(min(rel_obs$rang), 25, 50, 
+                         75, 100, 125, max(rel_obs$rang))) +
+    scale_y_continuous(sec.axis = 
+      sec_axis(~. / first(rel_obs$cum_n), name = "cumulatieve proportie"))
+
+rel_obs %>%
+  ggplot() +
+    geom_line(aes(x = rang, y = rel_n_scaled), size = 1) +
+    scale_x_continuous(breaks = c(min(rel_obs$rang), 25, 50, 
+                         75, 100, 125, max(rel_obs$rang))) +
+    labs(x = "taxon rang", y = "relatief aantal waarnemingen")
+```
+
+We zien een grote soortenrijkdom in de duinen. De curve is vrij stijl, wat wil zeggen dat de evenness is eerder laag is: hooggerangde soorten hebben een veel hoger aantal waarnemingen dan laaggerangde soorten.
+
 
 # Samenvattende tabel
 
