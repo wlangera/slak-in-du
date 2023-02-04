@@ -1,0 +1,28 @@
+# Inleiding
+
+```{r setup}
+# Opties
+library(knitr)
+library(here)
+opts_chunk$set(
+  echo = TRUE,
+  message = FALSE,
+  warning = FALSE
+)
+opts_knit$set(root.dir = here::here())
+
+# Packages
+library(tidyverse)
+library(sf)  
+library(xlsx)
+library(mapview)
+library(rgbif)
+
+# Source
+source(here("src", "R", "functions.R"))
+
+# References
+knitr::write_bib(c("tidyverse", "sf", "xlsx", "mapview", "rgbif"), 
+                 file = "packages.bib")
+```
+
