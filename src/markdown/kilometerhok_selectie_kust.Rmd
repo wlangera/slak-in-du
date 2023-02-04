@@ -24,7 +24,6 @@ opts_chunk$set(
 opts_knit$set(root.dir = here::here())
 
 library(tidyverse)
-library(gridExtra)
 library(sf)        # Om met kaarten te werken
 library(xlsx)      # Om naar Excel te kunnen schrijven
 ```
@@ -93,8 +92,10 @@ utm_10km_plot <- ggplot() +
                   geom_sf(data = utm_10km) +
                   labs(title = "UTM 10 km België")
 
-grid.arrange(utm_1km_plot, utm_2km_plot,
-             utm_5km_plot, utm_10km_plot, ncol = 2)
+utm_1km_plot
+utm_2km_plot
+utm_5km_plot
+utm_10km_plot
 
 # Plot ecoregio's
 ecoregios %>% 
@@ -231,7 +232,10 @@ p4 <- intersect_utm10 %>%
           labs(title = "UTM 10 km - UTM 31 N", fill = "") +
           theme(legend.position = "bottom")
 
-grid.arrange(p1, p2, p3, p4, ncol = 2)
+p1
+p2
+p3
+p4
 ```
 
 We willen een lijst van de UTM hokken op 5 en 10 km schaal. De namen van de hokken bevinden zich in de kolom `TAG`. Daaruit kunnen we selecteren, maar we hernoemen deze resp. naar `utm_5` en `utm_10` voor de 5 en 10 km hokken. Ze worden hier opgelijst en schrijven ze ook uit naar een Excel-file.
