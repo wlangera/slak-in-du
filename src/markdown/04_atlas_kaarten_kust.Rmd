@@ -1,41 +1,10 @@
----
-title: "Atlas kaarten kust"
-author: "Ward Langeraert"
-date: "`r Sys.Date()`"
-output: 
-  html_document:
-      code_folding: hide
-      toc: true
-      toc_float: true
-      toc_collapsed: true
-      df_print: paged
-  editor_options:
-      chunk_output_type: console
----
-
-```{r setup, include=FALSE}
-library(knitr)
-library(here)
-opts_chunk$set(
-  echo = TRUE,
-  message = FALSE,
-  warning = FALSE
-)
-opts_knit$set(root.dir = here::here())
-
-library(tidyverse)
-library(sf)
-
-source(here("src", "R", "functions.R"))
-```
-
-
-# Doel
+# Verspreidingskaarten UTM-niveau
+## Doel
 
 Verspreidingskaarten maken voor alle soorten binnen het Slak-in-Dugebied aan de kust op kleine schaal (1 of 2 km).
 
 
-# Data inlezen en voorbereiding
+## Data inlezen en voorbereiding
 
 We lezen de volgende kaarten in: 
 
@@ -140,7 +109,7 @@ slakken_data_sf_buffer <- slakken_data_sf %>%
 ```
 
 
-# Methodiek
+## Methodiek
 
 Om de atlaskaarten te maken, kijken we naar de overlap van de UTM-hokken met de buffers. We willen echter dat buffers die meerdere hokken overlappen slechts het hok kleuren waar ze het grootste opppervlakte hebben. Beschouw bijvoorbeeld de volgende punten:
 
@@ -219,8 +188,8 @@ utm_5km_kust %>%
 ```
 
 
-# Data exploratie
-## Zoekinspanning
+## Data exploratie
+### Zoekinspanning
 
 Voor we de verspreidingskaarten maken, is het belangrijk om een idee te hebben waar er precies is gezocht en met welke inspanning. Dit zal de interpretatie van de kaarten verbeteren. Zoekinspanning wordt hier gemeten als het aantal dagen per UTM-hok. Hokken waar we niet zijn geweest, zijn niet gekleurd (grijs).
 
@@ -248,7 +217,7 @@ for (resolutie in resoluties) {
 }
 ```
 
-## Soortenrijkdom
+### Soortenrijkdom
 
 We tellen het aantal soorten per kilometerhok. We beschouwen enkel waarnemingen die tot op soort zijn gedetermineerd. Soortengroepen zijn dus ook niet meegerekend. Hokken waar we niet zijn geweest, zijn niet gekleurd (grijs).
 
@@ -282,7 +251,7 @@ for (resolutie in resoluties) {
 In hokken waar we minder zijn geweest zullen we uiteraard ook minder soorten zien. We zouden een relatieve maat moeten hebben om weer te geven welke hokken de grootste rijkdom hebben. Het aantal soorten per hok delen door het aantal bezoeken per hok is te extreem omdat er soms maar 1x een hok bezocht is en andere keren veel vaker. De controlerende factor zou allicht gevonden kunnen worden door het aantal soorten op de y-as uit te zetten tegenover het aantal bezoeken en te kijken vanaf hoeveel bezoeken de soortenrijkdom afzwakt. Als we die functie kunnen fitten zouden we een correctie kunnen uitvoeren, maar dit zou hier te ver leiden. Bovendien is ons design hier niet op voorbereid om dergelijke maten te berekenen wat zou kunnen leiden tot verkeerde conclusies.
 
 
-# Verspreidingskaarten
+## Verspreidingskaarten
 
 ```{r}
 soorten <- slakken_data_sf_buffer %>% 
