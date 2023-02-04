@@ -24,7 +24,7 @@ opts_chunk$set(
 opts_knit$set(root.dir = here::here())
 
 library(tidyverse)
-library(gridExtra)
+library(xlsx)
 library(sf)
 library(mapview)
 library(rgbif)
@@ -550,18 +550,24 @@ soorten_lijst <- final_df %>%
            family, class, phylum, kingdom) %>% 
   arrange(kingdom, phylum, class, family, wet_soortnaam)
 
-write_csv(soorten_lijst, file = paste(out_path, "soortenlijst.csv", sep = "/"))
-
-# Toon soortenlijst
-soorten_lijst
+write.xlsx(soorten_lijst, file = paste(out_path, "soortenlijst.xlsx", sep = "/"), 
+           row.names = FALSE, append = FALSE)
 ```
 
-We slaan ten slotte een lijst op van de waarnemingen niet gedetermineerd tot op soortniveau.
+We slaan ten slotte een lijst op van de waarnemingen niet gedetermineerd tot op soortniveau en waarnemingen waarvan we de toestand niet weten (levend of lege schelp.)
 
 ```{r}
 ongedetermineerd <- final_df %>%
   filter(is.na(species))
 
-write_csv(ongedetermineerd, file = paste(out_path, "ongedetermineerd.csv", 
-                                         sep = "/"))
+write.xlsx(ongedetermineerd, file = paste(out_path, "ongedetermineerd.xlsx", 
+                                          sep = "/"), 
+           row.names = FALSE, append = FALSE)
+
+onbekend <- final_df %>%
+  filter(toestand == "onbekend")
+
+write.xlsx(onbekend, file = paste(out_path, "onbekende_toestand.xlsx", 
+                                  sep = "/"), 
+           row.names = FALSE, append = FALSE)
 ```
