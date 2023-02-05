@@ -1,4 +1,4 @@
-# Data Exploratie
+# Data exploratie{#exploratie}
 ## Doel
 
 Exploratie van de waarnemingendata na selectie en preparatie.
@@ -39,7 +39,7 @@ De eerste waarneming dateert van `r min(slakken_data$datum)` en de laatste van `
 
 ```{r}
 slakken_data %>%
-  mutate(jaar = year(datum)) %>%
+  mutate(jaar = lubridate::year(datum)) %>%
   group_by(jaar) %>%
   summarise("aantal waarnemingen" = n()) %>%
   kable()
@@ -47,14 +47,14 @@ slakken_data %>%
 
 ```{r}
 ggplot(slakken_data) +
-  geom_bar(aes(x = floor_date(datum, "month")), fill = "firebrick", 
+  geom_bar(aes(x = lubridate::floor_date(datum, "month")), fill = "firebrick", 
            colour = "black") +
   scale_x_date(date_breaks = "1 year", date_labels = "%Y") +
   labs(x = "", y = "aantal waarnemingen per maand") +
   theme(panel.grid.minor.x = element_blank())
 ```
 
-In totaal behoren de waarnemingen tot `r length(unique(slakken_data$wet_soortnaam))` taxa waarvan `r length(unique(slakken_data$species))` gedetermineert tot op soortniveau. Relatieve rang-abundatie curves kunnen een idee geven van soortenrijkdom en species evenness. Hoewel wij niet over abundanties beschikken, kunnen het relatief aantal waarnemingen wel een goed beeld geven. We beschouwen enkel de soorten gedetermineerd op soortniveau. Taxon rang: 1 = meest waarngenomen soort, `r length(unique(slakken_data$species))` = minst waarngenomen soort.
+In totaal behoren de waarnemingen tot `r length(unique(slakken_data$wet_soortnaam))` taxa waarvan `r sum(complete.cases(unique(slakken_data$species)))` gedetermineert tot op soortniveau. Relatieve rang-abundatie curves kunnen een idee geven van soortenrijkdom en species evenness. Hoewel wij niet over abundanties beschikken, kunnen het relatief aantal waarnemingen wel een goed beeld geven. We beschouwen enkel de soorten gedetermineerd op soortniveau. Taxon rang: 1 = meest waarngenomen soort, `r sum(complete.cases(unique(slakken_data$species)))` = minst waarngenomen soort.
 
 ```{r}
 rel_obs <- slakken_data %>%
@@ -127,15 +127,15 @@ df_tot <- full_join(prev_df, toest_df, by = "ned_soortnaam") %>%
   left_join(slakken_data_sf_buffer, by = "ned_soortnaam") %>%
   select("ned_soortnaam", "wet_soortnaam", "prevalentie", "utm_hokken", 
          "levend_dier", "lege_schelp", "onbekend") %>%
-  distinct()
+  distinct() %>%
+  as.data.frame()
 
 df_tot %>%
   kable()
 
 # Exporteer als .xlsx
-write.xlsx(df_tot, file = paste(out_path, "samenvattende_tabel.xlsx", 
-                                sep = "/"), 
-           row.names = FALSE, append = FALSE)
+openxlsx::write.xlsx(df_tot, 
+  file = paste(out_path, "samenvattende_tabel.xlsx", sep = "/"))
 ```
 
 De verdeling van de prevalenties ziet er als volgt uit.

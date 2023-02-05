@@ -1,4 +1,4 @@
-# Selectie studiegebied
+# Selectie studiegebied{#studiegebied}
 ## Doel
 
 Onderzoeksgebied afbakenen voor Slak-in-Du aan de kust. UTM grid over dit gebied op verschillende schalen exporteren om later te gebruiken om verspreidingskaarten te maken.
@@ -16,7 +16,7 @@ We lezen de volgende kaarten in:
 - uitbreiding regio kustduinen
 - provincies van Vlaanderen
 
-```{r data-selectie, results="hide"}
+```{r, results="hide"}
 # Locatie van data en output mappen
 data_path <- file.path(slak_in_du_dir, "data", "raw")
 out_path <- file.path(slak_in_du_dir, "data", "processed")
@@ -47,7 +47,7 @@ provincies <- st_transform(provincies, crs = proj_crs)
 
 Visualisatie van de kaartlagen:
 
-```{r data-visualisatie}
+```{r, cache=TRUE}
 # Plot UTM grids naast elkaar
 utm_1km_plot <- ggplot() +
                   geom_sf(data = utm_1km) +
@@ -233,12 +233,15 @@ utm_10km_out
 
 ```{r output-utm}
 # Output naar Excel
-write.xlsx(utm_5km_out, file = paste(out_path, "utm_hokken_slakindu.xlsx", 
-                                     sep = "/"),
-           sheetName = "utm_5km", row.names = FALSE, append = FALSE)
-write.xlsx(utm_10km_out, file = paste(out_path, "utm_hokken_slakindu.xlsx", 
-                                     sep = "/"),
-           sheetName = "utm_10km", row.names = FALSE, append = TRUE)
+wb <- openxlsx::createWorkbook()
+openxlsx::addWorksheet(wb, "utm_10km")
+openxlsx::addWorksheet(wb, "utm_5km")
+
+openxlsx::writeData(wb, sheet = "utm_10km", utm_10km_out)
+openxlsx::writeData(wb, sheet = "utm_5km", utm_5km_out)
+
+openxlsx::saveWorkbook(wb, file = paste(out_path, "utm_hokken_slakindu.xlsx", 
+                       sep = "/"), overwrite = TRUE)
 ```
 
 

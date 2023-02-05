@@ -1,4 +1,4 @@
-# Verspreidingskaarten UTM-niveau
+# Verspreidingskaarten UTM-niveau{#verspreidingskaarten}
 ## Doel
 
 Verspreidingskaarten maken voor alle soorten binnen het Slak-in-Dugebied aan de kust op verschillende schalen (1, 2, 5, 10 km).
@@ -14,7 +14,7 @@ We lezen de volgende kaarten in:
 - UTM 10 km hokken in het Slak-in-Dugebied aan de kust
 - Slak-in-Dugebied aan de kust
 
-```{r data-selectie, results="hide"}
+```{r, results="hide"}
 # Locatie van data en output mappen
 data_path <- file.path(slak_in_du_dir, "data", "raw")
 out_path <- file.path(slak_in_du_dir, "data", "processed")

@@ -9,6 +9,8 @@ data/processed/*
 
 # bookdown
 _book
+_main_files
+_bookdown_files
 
 # files
 *.html

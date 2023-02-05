@@ -1,4 +1,4 @@
-# Inleiding
+# Inleiding{#inleiding}
 
 ```{r setup, message = FALSE, warning = FALSE}
 # Opties
@@ -11,8 +11,7 @@ opts_chunk$set(
 
 # Packages
 library(tidyverse)
-library(sf)  
-library(xlsx)
+library(sf)
 library(mapview)
 library(rgbif)
 
@@ -21,7 +20,7 @@ slak_in_du_dir <- "C:/Users/WARD/Documents/slakken/Slak-in-Du/analyses/slak-in-d
 source(file.path(slak_in_du_dir, "src", "R", "functions.R"))
 
 # References
-knitr::write_bib(c("tidyverse", "sf", "xlsx", "mapview", "rgbif"), 
+knitr::write_bib(c("tidyverse", "sf", "mapview", "rgbif"), 
                  file = "packages.bib")
 ```
 
@@ -30,9 +29,9 @@ Bovendien wordt de methodiek zo goed mogelijk uitgeschreven zodat mensen met ver
 
 Het technisch rapport bestaat uit vier delen:
 
-1.  Afbakening van het Slak-in-Du gebied aan de kust. Het studiegebied kan dan gebruikt worden om de data te selecteren en UTM-hokken te selectieren die kunnen gebruikt worden om verspreidingskaarten te maken.
-2.  Selectie van de data en data preparatie voor verdere analyses.
-3.  Maken van "atlas-stijl" verspreidingskaarten m.b.v. UTM-hokken op verschillende schalen
-4.  Exploratie van de data om samenvattende cijfers en tabellen te genereren
+1.  Afbakening van het Slak-in-Du gebied aan de kust. Het studiegebied kan dan gebruikt worden om de data te selecteren en UTM-hokken te selectieren die kunnen gebruikt worden om verspreidingskaarten te maken. Hoofdstuk \@ref(#inleiding).
+2.  Selectie van de data en data preparatie voor verdere analyses. Hoofdstuk \@ref(#dataselectie).
+3.  Maken van "atlas-stijl" verspreidingskaarten m.b.v. UTM-hokken op verschillende schalen. Hoofdstuk \@ref(#verspreidingskaarten).
+4.  Exploratie van de data om samenvattende cijfers en tabellen te genereren. Hoofdstuk \@ref(#exploratie).
 
 Alle dataverwerking en analyses zijn verricht met R v4.1.2 in RStudio v2021.9.0.351 [@RStudio2021;@R2021] tenzij anders vermeld. Voor dataverwerking en visualisatie werd gebruik gemaakt van de **tidyverse** package v1.3.1 [@R-tidyverse; @tidyverse2019]. De **sf** package v1.0-7 [@R-sf; @sf2018] werd gebruikt voor de verwerking van de kaartlagen en **mapview** v2.11.0 [@R-mapview] voor het creëren van interactieve kaarten. Ten slotte werd de **rgbif** package v3.7.2 [@R-rgbif; @rgbif2017] gebruikt voor het ophalen van de weteschappelijke namen via de GBIF taxonomic backbone [@GBIFtax2022, via GBIF.org op `r Sys.Date()`].
