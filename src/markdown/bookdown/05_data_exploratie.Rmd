@@ -42,7 +42,8 @@ slakken_data %>%
   mutate(jaar = lubridate::year(datum)) %>%
   group_by(jaar) %>%
   summarise("aantal waarnemingen" = n()) %>%
-  kable()
+  kable("html") %>%
+  kableExtra::kable_styling(full_width = FALSE)
 ```
 
 ```{r}
