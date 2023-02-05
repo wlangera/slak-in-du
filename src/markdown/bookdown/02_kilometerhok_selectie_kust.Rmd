@@ -1,0 +1,326 @@
+# Selectie studiegebied
+## Doel
+
+Onderzoeksgebied afbakenen voor Slak-in-Du aan de kust. UTM grid over dit gebied op verschillende schalen exporteren om later te gebruiken om verspreidingskaarten te maken.
+
+
+## Data inlezen
+
+We lezen de volgende kaarten in: 
+
+- UTM 1 km hokken van België
+- UTM 2 km hokken van België
+- UTM 5 km hokken van België
+- UTM 10 km hokken van België
+- ecoregio's van Vlaanderen
+- uitbreiding regio kustduinen
+- provincies van Vlaanderen
+
+```{r data-selectie, results="hide"}
+# Locatie van data en output mappen
+data_path <- file.path(slak_in_du_dir, "data", "raw")
+out_path <- file.path(slak_in_du_dir, "data", "processed")
+
+# Lees kaartlagen in
+utm_1km <- st_read(paste(data_path, "utm1_bel.shp", sep = "/"))
+utm_2km <- st_read(paste(data_path, "utm2_bel.shp", sep = "/"))
+utm_5km <- st_read(paste(data_path, "utm5_bel.shp", sep = "/"))
+utm_10km <- st_read(paste(data_path, "utm10_bel.shp", sep = "/"))
+
+ecoregios <- st_read(paste(data_path, "ecoregio2002.shp", sep = "/"))
+uitbreiding_kust <- st_read(paste(data_path, "uitbreiding_ecoregio2002.shp", 
+                            sep = "/"))
+provincies <- st_read(paste(data_path, "Refprv.shp", sep = "/"))
+
+# Referentie coordinatensysteem: UTM zone 31N
+proj_crs <- 32631
+
+# Alle kaartlagen zelfde referentiesysteem
+utm_1km <- st_transform(utm_1km, crs = proj_crs)
+utm_2km <- st_transform(utm_2km, crs = proj_crs)
+utm_5km <- st_transform(utm_5km, crs = proj_crs)
+utm_10km <- st_transform(utm_10km, crs = proj_crs)
+ecoregios <- st_transform(ecoregios, crs = proj_crs)
+uitbreiding_kust <- st_transform(uitbreiding_kust, crs = proj_crs)
+provincies <- st_transform(provincies, crs = proj_crs)
+```
+
+Visualisatie van de kaartlagen:
+
+```{r data-visualisatie}
+# Plot UTM grids naast elkaar
+utm_1km_plot <- ggplot() +
+                  geom_sf(data = utm_1km) +
+                  labs(title = "UTM 1 km België")
+utm_2km_plot <- ggplot() +
+                  geom_sf(data = utm_2km) +
+                  labs(title = "UTM 2 km België")
+utm_5km_plot <- ggplot() +
+                  geom_sf(data = utm_5km) +
+                  labs(title = "UTM 5 km België")
+utm_10km_plot <- ggplot() +
+                  geom_sf(data = utm_10km) +
+                  labs(title = "UTM 10 km België")
+
+utm_1km_plot
+utm_2km_plot
+utm_5km_plot
+utm_10km_plot
+
+# Plot ecoregio's
+ecoregios %>% 
+  mutate(ecoregio = gsub("Ecoregio van de ", "", REGIO)) %>%
+  ggplot() + 
+    geom_sf(aes(fill = ecoregio)) +
+    labs(title = "Ecoregio's Vlaanderen", fill = "") +
+    theme(legend.position = "bottom")
+
+# Plot uitbreiding ecoregio kustduinen
+uitbreiding_kust %>%
+  ggplot() + 
+    geom_sf() +
+    labs(title = "Uitbreiding ecoregio kustduinen")
+
+# Plot provincies
+provincies %>%
+  ggplot() + 
+    geom_sf(aes(fill = NAAM)) +
+    labs(title = "Provincies Vlaanderen", fill = "") +
+    theme(legend.position = "bottom")
+```
+
+
+## Selectie Slak-in-Du gebied
+
+We selecteren de ecoregio's "kustduinen" en "polders en de getijdenschelde" gelegen in West-Vlaanderen. Daarvoor extraheren we eerst West-Vlaanderen uit de provincie-kaartlaag.
+
+```{r subset-selectie}
+# Selecteer West-Vlaanderen
+west_vlaanderen <- provincies %>% filter(NAAM == "West-Vlaanderen")
+
+# Selecteer kustduinen en polders
+eco_selectie <- ecoregios %>% 
+  mutate(ecoregio = gsub("Ecoregio van de ", "", REGIO)) %>%
+  filter(ecoregio %in% c("kustduinen", "polders en de getijdenschelde"))
+
+# Controle
+eco_selectie %>%
+  ggplot() + 
+    geom_sf(data = provincies, fill = alpha("black", 0)) +
+    geom_sf(aes(fill = ecoregio)) +
+    geom_sf(data = west_vlaanderen, fill = alpha("black", 0.2), size = 0.8) +
+    labs(fill = "") +
+    theme(legend.position = "bottom")
+```
+
+Daarna gebruiken we West-Vlaanderen om een stuk uit de ecoregio-laag te knippen. Dit is nodig aangezien de "polders en de getijdenschelde" ook buiten West-Vlaanderen te vinden zijn, maar die hebben wij niet nodig. We zijn enkel geïnteresseerd in de kustpolders.
+
+```{r intersectie-wvl}
+# Neem de intersectie van beide lagen
+intersect_wvl <- st_intersection(west_vlaanderen, eco_selectie) %>%
+  mutate(ecoregio = ifelse(ecoregio == "polders en de getijdenschelde", 
+                           "kustpolders", "kustduinen"))
+
+# Controle
+intersect_wvl %>%
+  ggplot() +
+    geom_sf(aes(fill = ecoregio)) +
+    labs(fill = "") +
+    theme(legend.position = "bottom")
+```
+
+
+## Uitbreiding regio kustduinen
+
+We moeten de ecoregio kaart uitbreiden omdat deze incompleet is voor de kustduinen. Dit was het geval voor de haven van Zeebrugge, de Baai van Heist en een deel van de Zwinduinen. 
+
+```{r}
+uitbreiding_kust %>%
+  mutate(OIDN = 1, UIDN = NA, VERSDATUM = NA, TERRID = NA,
+         NAAM = "West-Vlaanderen", NISCODE = NA, NUTS2 = NA, LENGTE = NA,
+         OPPERVL = NA, REGIO = "Ecoregio van de kustduinen", CODE = NA, 
+         HECTARES = NA, ecoregio = "kustduinen") %>%
+  select(-id) %>%
+  rbind(intersect_wvl) %>%
+  mutate(ecoregio = ifelse(OIDN == 1, "kustduinen - uitbreiding", ecoregio)) %>%
+  ggplot() +
+    geom_sf(aes(fill = ecoregio)) +
+    labs(fill = "") +
+    theme(legend.position = "bottom")
+```
+
+Deze uitbreiding werd manueel getekend in QGIS v3.2.3 [@QGIS2018Software] op basis van een satellietkaart. We voegen deze uitbreiding nu bij de finale laag bekomen in vorige deel om het deelgebied kustduinen uit te breiden.
+
+```{r}
+intersect_wvl2 <- intersect_wvl %>%
+  filter(ecoregio == "kustduinen") %>%
+  st_union(uitbreiding_kust %>% st_buffer(0.5)) %>%
+  select(-id) %>%
+  rbind(intersect_wvl %>% filter(ecoregio == "kustpolders"))
+
+ggplot(intersect_wvl2) +
+    geom_sf(aes(fill = ecoregio)) +
+    labs(fill = "") +
+    theme(legend.position = "bottom")
+```
+
+
+## Overlap UTM-hokken en uitschrijven lijst
+
+Nu overlappen we de laatste laag met de UTM-hokken.
+
+```{r intersectie-utm}
+# Neem de intersectie van beide lagen voor 5 en 10 km
+intersect_utm1 <- st_intersection(intersect_wvl2, utm_1km)
+intersect_utm2 <- st_intersection(intersect_wvl2, utm_2km)
+intersect_utm5 <- st_intersection(intersect_wvl2, utm_5km)
+intersect_utm10 <- st_intersection(intersect_wvl2, utm_10km)
+
+# Controle
+p1 <- intersect_utm1 %>%
+        ggplot() +
+          geom_sf(aes(fill = ecoregio)) +
+          coord_sf(datum = proj_crs) +
+          labs(title = "UTM 1 km - UTM 31 N", fill = "") +
+          theme(legend.position = "bottom")
+p2 <- intersect_utm2 %>%
+        ggplot() +
+          geom_sf(aes(fill = ecoregio)) +
+          coord_sf(datum = proj_crs) +
+          labs(title = "UTM 2 km - UTM 31 N", fill = "") +
+          theme(legend.position = "bottom")
+p3 <- intersect_utm5 %>%
+        ggplot() +
+          geom_sf(aes(fill = ecoregio)) +
+          coord_sf(datum = proj_crs) +
+          labs(title = "UTM 5 km - UTM 31 N", fill = "") +
+          theme(legend.position = "bottom")
+p4 <- intersect_utm10 %>%
+        ggplot() +
+          geom_sf(aes(fill = ecoregio)) +
+          coord_sf(datum = proj_crs) +
+          labs(title = "UTM 10 km - UTM 31 N", fill = "") +
+          theme(legend.position = "bottom")
+
+p1
+p2
+p3
+p4
+```
+
+We willen een lijst van de UTM hokken op 5 en 10 km schaal. De namen van de hokken bevinden zich in de kolom `TAG`. Daaruit kunnen we selecteren, maar we hernoemen deze resp. naar `utm_5` en `utm_10` voor de 5 en 10 km hokken. Ze worden hier opgelijst en schrijven ze ook uit naar een Excel-file.
+
+```{r tabel-utm}
+# Maak een mooie tabel
+utm_5km_out <- intersect_utm5 %>%
+                 st_drop_geometry() %>%
+                 select(TAG) %>%
+                 arrange(TAG) %>%
+                 distinct(TAG) %>%
+                 rename(utm_5 = TAG)
+rownames(utm_5km_out) <- NULL
+utm_5km_out
+
+utm_10km_out <- intersect_utm10 %>%
+                 st_drop_geometry() %>%
+                 select(TAG) %>%
+                 arrange(TAG) %>%
+                 distinct(TAG) %>%
+                 rename(utm_10 = TAG)
+rownames(utm_10km_out) <- NULL
+utm_10km_out
+```
+
+```{r output-utm}
+# Output naar Excel
+write.xlsx(utm_5km_out, file = paste(out_path, "utm_hokken_slakindu.xlsx", 
+                                     sep = "/"),
+           sheetName = "utm_5km", row.names = FALSE, append = FALSE)
+write.xlsx(utm_10km_out, file = paste(out_path, "utm_hokken_slakindu.xlsx", 
+                                     sep = "/"),
+           sheetName = "utm_10km", row.names = FALSE, append = TRUE)
+```
+
+
+## Visualisatie en export kaart geselecteerde hokken
+
+```{r plot-utm}
+# Maak selectie UTM-hokken
+utm_1km_lijst <- unique(intersect_utm1$TAG)
+utm_2km_lijst <- unique(intersect_utm2$TAG)
+utm_5km_lijst <- unique(intersect_utm5$TAG)
+utm_10km_lijst <- unique(intersect_utm10$TAG)
+
+# Maak kaartlagen van selecie UTM-hokken
+utm_1km_kust <- utm_1km %>% 
+  filter(TAG %in% utm_1km_lijst)
+
+utm_2km_kust <- utm_2km %>% 
+  filter(TAG %in% utm_2km_lijst)
+
+utm_5km_kust <- utm_5km %>% 
+  filter(TAG %in% utm_5km_lijst)
+
+utm_10km_kust <- utm_10km %>% 
+  filter(TAG %in% utm_10km_lijst)
+
+# Plots
+utm_1km_kust %>%
+  ggplot() +
+    geom_sf(data = intersect_wvl2, aes(fill = ecoregio), alpha = 0.5) +
+    geom_sf(fill = alpha("black", 0)) +
+    coord_sf(datum = proj_crs) +
+    labs(title = "UTM 1 km - UTM zone 31N") +
+    theme(legend.position = "bottom",
+          axis.title = element_blank())
+
+utm_2km_kust %>%
+  ggplot() +
+    geom_sf(data = intersect_wvl2, aes(fill = ecoregio), alpha = 0.5) +
+    geom_sf(fill = alpha("black", 0)) +
+    coord_sf(datum = proj_crs) +
+    labs(title = "UTM 2 km - UTM zone 31N") +
+    theme(legend.position = "bottom",
+          axis.title = element_blank())
+
+utm_5km_kust %>%
+  ggplot() +
+    geom_sf(data = intersect_wvl2, aes(fill = ecoregio), alpha = 0.5) +
+    geom_sf(fill = alpha("black", 0)) +
+    geom_sf_text(aes(label = TAG), size = 1.5) +
+    coord_sf(datum = proj_crs) +
+    labs(title = "UTM 5 km - UTM zone 31N") +
+    theme(legend.position = "bottom",
+          axis.title = element_blank())
+
+utm_10km_kust %>%
+  ggplot() +
+    geom_sf(data = intersect_wvl2, aes(fill = ecoregio), alpha = 0.5) +
+    geom_sf(fill = alpha("black", 0)) +
+    geom_sf_text(aes(label = TAG), size = 2.5) +
+    coord_sf(datum = proj_crs) +
+    labs(title = "UTM 10 km - UTM zone 31N") +
+    theme(legend.position = "bottom",
+          axis.title = element_blank())
+```
+
+Ten slotte exporteren we de kaartlagen van het onderzoeksgebied en de verschillende UTM-hokken over het onderzoeksgebied als .shp-files.
+
+```{r}
+# Output .shp-files
+st_write(intersect_wvl2, paste(out_path, "studiegebied_kust.shp", 
+                               sep = "/"), 
+         delete_dsn = TRUE)
+st_write(utm_1km_kust, paste(out_path, "utm_1km_kust.shp", 
+                             sep = "/"), 
+         delete_dsn = TRUE)
+st_write(utm_2km_kust, paste(out_path, "utm_2km_kust.shp", 
+                             sep = "/"), 
+         delete_dsn = TRUE)
+st_write(utm_5km_kust, paste(out_path, "utm_5km_kust.shp", 
+                             sep = "/"), 
+         delete_dsn = TRUE)
+st_write(utm_10km_kust, paste(out_path, "utm_10km_kust.shp", 
+                              sep = "/"), 
+         delete_dsn = TRUE)
+```

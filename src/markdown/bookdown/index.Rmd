@@ -1,0 +1,19 @@
+---
+title: "Technisch rapport 11 jaar Slak-in-Du"
+author: "Ward Langeraert"
+date: "`r Sys.Date()`"
+site: bookdown::bookdown_site
+documentclass: book
+output:
+  bookdown::html_document2:
+      code_folding: hide
+      toc: true
+      toc_float: true
+      toc_collapsed: true
+      df_print: paged
+bibliography: [references.bib, packages.bib]
+csl: american-psychological-association-7th-edition.csl
+link-citations: yes
+editor_options: 
+  chunk_output_type: console
+---

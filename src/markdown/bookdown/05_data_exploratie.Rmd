@@ -1,0 +1,148 @@
+# Data Exploratie
+## Doel
+
+Exploratie van de waarnemingendata na selectie en preparatie.
+
+
+## Data inlezen
+
+We lezen de waarnemingendata in van Slak-in-Du na data selectie en preparatie.
+
+```{r}
+# Locatie van data en output mappen
+data_path <- file.path(slak_in_du_dir, "data", "raw")
+out_path <- file.path(slak_in_du_dir, "data", "processed")
+
+# Referentie coordinatensysteem: UTM zone 31N
+proj_crs <- 32631
+
+# Laad data
+slakken_data <- read_csv(paste(out_path, "waarnemingen_kust.csv", sep = "/"))
+
+# Zet om naar sf object
+slakken_data_sf <- slakken_data %>% 
+  st_as_sf(coords = c("longitude", "latitude"), crs = 4326)
+
+# Zet crs om naar project crs
+slakken_data_sf <- slakken_data_sf %>%
+  st_transform(crs = proj_crs)
+
+# Voeg buffer toe
+slakken_data_sf_buffer <- slakken_data_sf %>%
+  st_buffer(slakken_data_sf$precisie)
+```
+
+
+## Enkele cijfers
+
+De eerste waarneming dateert van `r min(slakken_data$datum)` en de laatste van `r max(slakken_data$datum)` dit is een verschil van `r difftime(max(slakken_data$datum), min(slakken_data$datum))` dagen. In totaal hebben we `r nrow(slakken_data)` waarnemingen.
+
+```{r}
+slakken_data %>%
+  mutate(jaar = year(datum)) %>%
+  group_by(jaar) %>%
+  summarise("aantal waarnemingen" = n()) %>%
+  kable()
+```
+
+```{r}
+ggplot(slakken_data) +
+  geom_bar(aes(x = floor_date(datum, "month")), fill = "firebrick", 
+           colour = "black") +
+  scale_x_date(date_breaks = "1 year", date_labels = "%Y") +
+  labs(x = "", y = "aantal waarnemingen per maand") +
+  theme(panel.grid.minor.x = element_blank())
+```
+
+In totaal behoren de waarnemingen tot `r length(unique(slakken_data$wet_soortnaam))` taxa waarvan `r length(unique(slakken_data$species))` gedetermineert tot op soortniveau. Relatieve rang-abundatie curves kunnen een idee geven van soortenrijkdom en species evenness. Hoewel wij niet over abundanties beschikken, kunnen het relatief aantal waarnemingen wel een goed beeld geven. We beschouwen enkel de soorten gedetermineerd op soortniveau. Taxon rang: 1 = meest waarngenomen soort, `r length(unique(slakken_data$species))` = minst waarngenomen soort.
+
+```{r}
+rel_obs <- slakken_data %>%
+  filter(!is.na(species)) %>%
+  group_by(ned_soortnaam, wet_soortnaam) %>%
+  summarise(n = n()) %>%
+  ungroup() %>%
+  arrange(desc(n)) %>%
+  mutate(rel_n = n / nrow(slakken_data),
+         rel_n_scaled = n / first(n),
+         cum_n = cumsum(n), 
+         cum_n_scaled = cum_n / (last(cum_n)/first(cum_n))) %>%
+  rowid_to_column("rang")
+
+rel_obs %>%
+  ggplot() +
+    geom_bar(aes(x = rang, y = n), stat = "identity", fill = "firebrick", 
+           colour = "black") +
+    geom_line(aes(x = rang, y = cum_n_scaled), size = 1, 
+              colour = "cornflowerblue") +
+    labs(x = "taxon rang", y = "aantal waarnemingen") +
+    scale_x_continuous(breaks = c(min(rel_obs$rang), 25, 50, 
+                         75, 100, 125, max(rel_obs$rang))) +
+    scale_y_continuous(sec.axis = 
+      sec_axis(~. / first(rel_obs$cum_n), name = "cumulatieve proportie"))
+
+rel_obs %>%
+  ggplot() +
+    geom_line(aes(x = rang, y = rel_n_scaled), size = 1) +
+    scale_x_continuous(breaks = c(min(rel_obs$rang), 25, 50, 
+                         75, 100, 125, max(rel_obs$rang))) +
+    labs(x = "taxon rang", y = "relatief aantal waarnemingen")
+```
+
+We zien een grote soortenrijkdom in de duinen. De curve is vrij stijl, wat wil zeggen dat de evenness is eerder laag is: hooggerangde soorten hebben een veel hoger aantal waarnemingen dan laaggerangde soorten.
+
+
+## Samenvattende tabel
+
+We maken een overzichtstabel waarbij we voor elke soort de prevalentie berekenen. De prevalentie $p$ is de proportie van UTM-hokken waar de soort is gevonden $n_{aanwezig}$ ten opzichte van het totaal aantal bezochte hokken $n_{bezocht}$.
+
+$$
+p = \frac{n_{aanwezig}}{n_{bezocht}}
+$$
+
+We geven ook aan om welke UTM-hokken het gaat. Daarnaast voegen we ook kolommen toe in welke toestand (levend, lege schelp of onbekend) de soort is aangetroffen in welke hokken.
+
+```{r, cache=TRUE}
+soortenlijst <- slakken_data %>%
+  arrange(class, family, wet_soortnaam) %>%
+  distinct(ned_soortnaam) %>%
+  pull(ned_soortnaam)
+
+# Prevalentie
+prevalenties <- lapply(soortenlijst, get_prevalence, 
+                       data = slakken_data_sf_buffer)
+
+prev_df <- do.call(what = rbind.data.frame, args = prevalenties)
+names(prev_df) <- c("ned_soortnaam", "prevalentie", "utm_hokken")
+
+# UTM-hokken toestand
+toestanden <- lapply(soortenlijst, get_life_stats, 
+                     data = slakken_data_sf_buffer)
+
+toest_df <- do.call(what = rbind.data.frame, args = toestanden)
+names(toest_df) <- c("ned_soortnaam", "levend_dier", "lege_schelp", "onbekend")
+
+# Voeg samen en voeg wetenschappelijke soortnaam toe
+df_tot <- full_join(prev_df, toest_df, by = "ned_soortnaam") %>%
+  left_join(slakken_data_sf_buffer, by = "ned_soortnaam") %>%
+  select("ned_soortnaam", "wet_soortnaam", "prevalentie", "utm_hokken", 
+         "levend_dier", "lege_schelp", "onbekend") %>%
+  distinct()
+
+df_tot %>%
+  kable()
+
+# Exporteer als .xlsx
+write.xlsx(df_tot, file = paste(out_path, "samenvattende_tabel.xlsx", 
+                                sep = "/"), 
+           row.names = FALSE, append = FALSE)
+```
+
+De verdeling van de prevalenties ziet er als volgt uit.
+
+```{r}
+ggplot(df_tot) +
+  geom_bar(aes(x = prevalentie), fill = "firebrick", colour = "black") +
+  scale_x_continuous(limits = c(0, 1)) +
+  labs(y = "aantal soorten")
+```
