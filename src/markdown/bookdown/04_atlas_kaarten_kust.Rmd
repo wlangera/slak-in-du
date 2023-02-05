@@ -271,7 +271,8 @@ for (i in seq_len(nrow(soorten))) {
         geom_sf(aes(fill = occurrence), colour = alpha("white", 0), 
                 alpha = 0.8) +
         scale_fill_manual(values = c(alpha("green", 0.7), alpha("red", 0.7)),
-                          labels = c("aanwezig", "afwezig", "niet bezocht")) +
+                          labels = c("aangetroffen", "niet aangetroffen", 
+                                     "niet bezocht")) +
         geom_sf(data = utm_10km_kust, fill =  alpha("white", 0), size = 0.7) +
         labs(title = paste0(soortnaam, " - ", wet_naam), fill = "Legende",
              subtitle = paste0("UTM ", resolutie, " km")) +
