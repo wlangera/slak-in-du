@@ -9,6 +9,7 @@ data/processed/*
 
 # bookdown
 _book
+_main_cache
 _main_files
 _bookdown_files
 
