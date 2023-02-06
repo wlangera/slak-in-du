@@ -55,7 +55,7 @@ ggplot(slakken_data) +
   theme(panel.grid.minor.x = element_blank())
 ```
 
-In totaal behoren de waarnemingen tot `r length(unique(slakken_data$wet_soortnaam))` taxa waarvan `r sum(complete.cases(unique(slakken_data$species)))` gedetermineert tot op soortniveau. Relatieve rang-abundatie curves kunnen een idee geven van soortenrijkdom en species evenness. Hoewel wij niet over abundanties beschikken, kunnen het relatief aantal waarnemingen wel een goed beeld geven. We beschouwen enkel de soorten gedetermineerd op soortniveau. Taxon rang: 1 = meest waarngenomen soort, `r sum(complete.cases(unique(slakken_data$species)))` = minst waarngenomen soort.
+In totaal behoren de waarnemingen tot `r length(unique(slakken_data$wet_soortnaam))` taxa waarvan `r sum(complete.cases(unique(slakken_data$species)))` gedetermineert tot op soortniveau. Relatieve rang-abundatie curves kunnen een idee geven van soortenrijkdom en species evenness. Hoewel wij niet over abundanties beschikken, kunnen het relatief aantal waarnemingen wel een goed beeld geven. We beschouwen enkel de soorten gedetermineerd op soortniveau. Taxon rang: 1 = meest waargenomen soort, `r sum(complete.cases(unique(slakken_data$species)))` = minst waarngenomen soort.
 
 ```{r}
 rel_obs <- slakken_data %>%
