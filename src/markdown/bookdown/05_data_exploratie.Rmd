@@ -139,7 +139,7 @@ openxlsx::write.xlsx(df_tot,
   file = paste(out_path, "samenvattende_tabel.xlsx", sep = "/"))
 ```
 
-De verdeling van de prevalenties ziet er als volgt uit.
+De verdeling van de prevalenties op UTM 10 km niveau ziet er als volgt uit.
 
 ```{r}
 ggplot(df_tot) +
