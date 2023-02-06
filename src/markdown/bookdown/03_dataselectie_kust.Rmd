@@ -475,15 +475,15 @@ Verder zit er ook informatie over elke waarneming in `notes`.
 We willen een kolom `toestand` toevoegen met de 3 categoriën. Deze zijn te vinden in verschillende kolommen:
 
 -   levend
-  -   `life stage`: "levend dier" OF
-  -   `activity`: "levend dier" OF
-  -   `notes`: zoek voor woord "levend"
+    -   `life stage`: "levend dier" OF
+    -   `activity`: "levend dier" OF
+    -   `notes`: zoek voor woord "levend"
 -   lege schelp
-  -   `life stage`: ("doublet" OF "lege schelp of losse klep") OF
-  -   `activity`: "dood" OF
-  -   `notes`: zoek voor woord "vers" OF "oud" OF "dood" OF "doublet" OF "fragment" OF "leeg" OF "kokerjuffer" OF alleenstaande V (en verkeerde schrijfwijzes)
+    -   `life stage`: ("doublet" OF "lege schelp of losse klep") OF
+    -   `activity`: "dood" OF
+    -   `notes`: zoek voor woord "vers" OF "oud" OF "dood" OF "doublet" OF "fragment" OF "leeg" OF "kokerjuffer" OF alleenstaande V (en verkeerde schrijfwijzes)
 -   onbekend
-  -   rest
+    -   rest
 
 ```{r}
 land_zoetwater_kust_selectie <- land_zoetwater_kust_selectie %>%
