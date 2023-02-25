@@ -1,41 +1,10 @@
----
-title: "Atlas kaarten kust"
-author: "Ward Langeraert"
-date: "`r Sys.Date()`"
-output: 
-  html_document:
-      code_folding: hide
-      toc: true
-      toc_float: true
-      toc_collapsed: true
-      df_print: paged
-  editor_options:
-      chunk_output_type: console
----
+# Verspreidingskaarten UTM-niveau{#verspreidingskaarten}
+## Doel
 
-```{r setup, include=FALSE}
-library(knitr)
-library(here)
-opts_chunk$set(
-  echo = TRUE,
-  message = FALSE,
-  warning = FALSE
-)
-opts_knit$set(root.dir = here::here())
-
-library(tidyverse)
-library(sf)
-
-source(here("src", "R", "functions.R"))
-```
+Verspreidingskaarten maken voor alle soorten binnen het Slak-in-Dugebied aan de kust op verschillende schalen (1, 2, 5, 10 km).
 
 
-# Doel
-
-Verspreidingskaarten maken voor alle soorten binnen het Slak-in-Dugebied aan de kust op kleine schaal (1 of 2 km).
-
-
-# Data inlezen en voorbereiding
+## Data inlezen en voorbereiding
 
 We lezen de volgende kaarten in: 
 
@@ -45,11 +14,10 @@ We lezen de volgende kaarten in:
 - UTM 10 km hokken in het Slak-in-Dugebied aan de kust
 - Slak-in-Dugebied aan de kust
 
-```{r data-selectie, results="hide"}
+```{r verspreiding-data, results="hide"}
 # Locatie van data en output mappen
-data_path <- here("data", "raw")
-out_path <- here("data", "processed")
-fig_path <- here("data", "figures", "atlas_maps")
+data_path <- file.path(slak_in_du_dir, "data", "raw")
+out_path <- file.path(slak_in_du_dir, "data", "processed")
 
 # Lees kaartlagen in
 utm_1km_kust <- st_read(paste(out_path, "utm_1km_kust.shp", sep = "/"))
@@ -69,7 +37,7 @@ proj_crs <- 32631
 
 Visualisatie van de kaartlagen:
 
-```{r}
+```{r verspreiding-kaarten}
 # Maak thema voor plotten van kaartjes
 mytheme <- theme(panel.grid.major = element_line(color = "grey", 
                                                  linetype = "dashed", 
@@ -122,7 +90,7 @@ utm_10km_kust %>%
 
 We lezen de waarnemingendata in van Slak-in-Du na data selectie en preparatie. We trekken een buffer rond elke waarneming die overeenkomt met hun nauwkeurigheid.
 
-```{r}
+```{r verspreiding-waarnemingen}
 # Laad data
 slakken_data <- read_csv(paste(out_path, "waarnemingen_kust.csv", sep = "/"))
 
@@ -140,11 +108,11 @@ slakken_data_sf_buffer <- slakken_data_sf %>%
 ```
 
 
-# Methodiek
+## Methodiek
 
 Om de atlaskaarten te maken, kijken we naar de overlap van de UTM-hokken met de buffers. We willen echter dat buffers die meerdere hokken overlappen slechts het hok kleuren waar ze het grootste opppervlakte hebben. Beschouw bijvoorbeeld de volgende punten:
 
-```{r}
+```{r verspreiding-simulatie}
 punten <- data.frame(id = 1:2, 
                      x = c(492000,495500),
                      y = c(5678000, 5672000)) %>%
@@ -162,7 +130,7 @@ utm_5km_kust %>%
 
 We willen niet dat alle hokken met overlap gekleurd worden zoals hier:
 
-```{r}
+```{r verspreiding-plot-simulatie-mis}
 # Neem intersectie punten met buffer en grid
 intersection <- punten %>%
   st_intersection(utm_5km_kust %>%
@@ -188,7 +156,7 @@ utm_5km_kust %>%
 
 We willen wel de hokken met de grootste overlap kleuren, zoals hier:
 
-```{r}
+```{r verspreiding-plot-simulatie-goed}
 # Neem intersectie grid en punten met buffer
 intersection <- utm_5km_kust %>%
   filter(startsWith(TAG, "DS97")) %>%
@@ -219,12 +187,12 @@ utm_5km_kust %>%
 ```
 
 
-# Data exploratie
-## Zoekinspanning
+## Data exploratie
+### Zoekinspanning
 
 Voor we de verspreidingskaarten maken, is het belangrijk om een idee te hebben waar er precies is gezocht en met welke inspanning. Dit zal de interpretatie van de kaarten verbeteren. Zoekinspanning wordt hier gemeten als het aantal dagen per UTM-hok. Hokken waar we niet zijn geweest, zijn niet gekleurd (grijs).
 
-```{r}
+```{r verspreiding-inspanning, cache=TRUE}
 resoluties <- c(1, 2, 5, 10)
 
 for (resolutie in resoluties) {
@@ -240,7 +208,7 @@ for (resolutie in resoluties) {
        coord_sf(datum = proj_crs) +
        mytheme
   
-  if (resolutie == 10) {
+  if (resolutie %in% c(5, 10)) {
     p <- p + geom_sf_text(aes(label = n))
   }
   
@@ -248,11 +216,11 @@ for (resolutie in resoluties) {
 }
 ```
 
-## Soortenrijkdom
+### Soortenrijkdom
 
 We tellen het aantal soorten per kilometerhok. We beschouwen enkel waarnemingen die tot op soort zijn gedetermineerd. Soortengroepen zijn dus ook niet meegerekend. Hokken waar we niet zijn geweest, zijn niet gekleurd (grijs).
 
-```{r}
+```{r verspreiding-soortenrijkdom, cache=TRUE}
 resoluties <- c(1, 2, 5, 10)
 
 data <- slakken_data_sf_buffer %>%
@@ -271,7 +239,7 @@ for (resolutie in resoluties) {
        coord_sf(datum = proj_crs) +
        mytheme
   
-  if (resolutie == 10) {
+  if (resolutie %in% c(5, 10)) {
     p <- p + geom_sf_text(aes(label = n))
   }
   
@@ -282,14 +250,14 @@ for (resolutie in resoluties) {
 In hokken waar we minder zijn geweest zullen we uiteraard ook minder soorten zien. We zouden een relatieve maat moeten hebben om weer te geven welke hokken de grootste rijkdom hebben. Het aantal soorten per hok delen door het aantal bezoeken per hok is te extreem omdat er soms maar 1x een hok bezocht is en andere keren veel vaker. De controlerende factor zou allicht gevonden kunnen worden door het aantal soorten op de y-as uit te zetten tegenover het aantal bezoeken en te kijken vanaf hoeveel bezoeken de soortenrijkdom afzwakt. Als we die functie kunnen fitten zouden we een correctie kunnen uitvoeren, maar dit zou hier te ver leiden. Bovendien is ons design hier niet op voorbereid om dergelijke maten te berekenen wat zou kunnen leiden tot verkeerde conclusies.
 
 
-# Verspreidingskaarten
+## Verspreidingskaarten
 
-```{r}
+```{r verspreiding-atlas, cache=TRUE}
 soorten <- slakken_data_sf_buffer %>% 
   st_drop_geometry() %>%
   arrange(class, family, wet_soortnaam) %>%
   distinct(ned_soortnaam, wet_soortnaam)
-resoluties <- c(1, 2, 5, 10)
+resoluties <- c(1, 2)
 
 for (i in seq_len(nrow(soorten))) {
   soortnaam <- soorten$ned_soortnaam[i]
@@ -303,7 +271,8 @@ for (i in seq_len(nrow(soorten))) {
         geom_sf(aes(fill = occurrence), colour = alpha("white", 0), 
                 alpha = 0.8) +
         scale_fill_manual(values = c(alpha("green", 0.7), alpha("red", 0.7)),
-                          labels = c("aanwezig", "afwezig", "niet bezocht")) +
+                          labels = c("aangetroffen", "niet aangetroffen", 
+                                     "niet bezocht")) +
         geom_sf(data = utm_10km_kust, fill =  alpha("white", 0), size = 0.7) +
         labs(title = paste0(soortnaam, " - ", wet_naam), fill = "Legende",
              subtitle = paste0("UTM ", resolutie, " km")) +
