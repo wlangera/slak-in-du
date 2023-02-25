@@ -30,6 +30,7 @@ get_utm_grid <- function(resolutie) {
   return(utm_kust)
 }
 
+
 get_visit_stats <- function(data, utm_kust) {
   # Neem intersectie met UTM-grid
   intersection <- utm_kust %>% 
