@@ -12,7 +12,7 @@ We lezen de volgende kaarten in:
 
 Deze bevat twee ecoregio's. We voegen deze samen zodat we een enkele kaart hebben van het volledige studiegebied. 
 
-```{r}
+```{r dataselectie-data}
 # Locatie van data en output mappen
 data_path <- file.path(slak_in_du_dir, "data", "raw")
 out_path <- file.path(slak_in_du_dir, "data", "processed")
@@ -32,7 +32,7 @@ proj_crs <- 32631
 
 Visualisatie van de kaartlagen:
 
-```{r}
+```{r dataselectie-kaarten}
 # Maak thema voor plotten van kaartjes
 mytheme <- theme(panel.grid.major = element_line(color = "grey", 
                                                  linetype = "dashed", 
@@ -49,7 +49,7 @@ studiegebied_kust_merged %>%
 
 We lezen de waarnemingendata in van Slak-in-Du. Laatste download 21-01-2023.
 
-```{r}
+```{r dataselectie-waarnemingen}
 # Laad data
 ruwe_data <- read_csv(paste(data_path, "observations-slak-in-du.csv",
                                sep = "/"))
@@ -68,7 +68,7 @@ ruwe_data_sf <- ruwe_data_sf %>%
 
 We selecteren daarna de waarnemingen binnen het studiegebied aan de kust.
 
-```{r}
+```{r dataselectie-intersect-studiegebied}
 # Selectie waarnemingen binnen studiegebied
 waarnemingen_kust <- ruwe_data_sf %>%
   st_intersection(studiegebied_kust_merged)
@@ -78,7 +78,7 @@ waarnemingen_kust <- ruwe_data_sf %>%
 
 Zijn er punten die vlak buiten het gebied vallen, maar die wel van belang zijn?
 
-```{r}
+```{r dataselectie-randgevallen}
 # Selecteer correcte observaties binnen gebied
 correct_obs <- waarnemingen_kust
 id_correct_obs <- correct_obs$id
@@ -105,7 +105,7 @@ De punten ten noorden van het studiegebied moeten ook niet opgenomen worden. Het
 We verwijderen alle mariene soorten uit de selectie. Het gaat om:  
 Mossel, Japanse oester, Strandgaper, Macoma balthica, Witte dunschaal, Zaagje, Filipijnse tapijtschelp, Grofgeribde fuikhoren, Penhoren, Amerikaanse boormossel, Paalworm, Melkwitte arkschalp, Klein drijfhorentje, Ruwe alikruik-complex, Witte wenteltrap, Platte oester, Witte boormossel, Kokkel, Noorse hartschelp, Halfgeknotte strandschelp, Venusschelp, Gewone alikruik, Grote strandschelp, Angulus tenuis, Roze schotelhoren, Tweetandschelpje, Gekielde cirkelslak, Noordse rotsboorder, Bonte mantel, Gevlekt koffieboontje, Gewone priktolhoren, Purperslak, Stompe ribhoren, Vliezig drijfhorentje, Tolhoren onbekend, Gevlochten fuikhoren, Scheve hartschelp, Scheef bultschelpje, Stompe buishoren, Muizenkeuteltje, Klein traliehorentje, Paardenzadel, Haustator solanderi, Glanzende tepelhoren, Oubliehoren, Gewone marmerschelp, Wulk, Grote tepelhoren, Hongaarse muts, Amerikaanse strandschelp, Corbula gibba, Platte slijkgaper, Tere dunschaal, Driehoekige parelmoerneut.
 
-```{r}
+```{r dataselectie-marien}
 mariene_mollusken <- c("Mossel", "Japanse oester", "Strandgaper", 
   "Macoma balthica", "Witte dunschaal", "Zaagje", "Filipijnse tapijtschelp", 
   "Grofgeribde fuikhoren", "Penhoren", "Amerikaanse boormossel", "Paalworm", 
@@ -132,7 +132,7 @@ land_zoetwater_kust <- waarnemingen_kust %>%
 ### Selectie relevante waarnemingen
 
 
-```{r}
+```{r dataselectie-te-verwijderen}
 te_verwijderen <- c()
 ```
 
@@ -140,7 +140,7 @@ Zijn er waarnemingen van *aangespoelde schelpen*?
 
 - in ```activity```
 
-```{r}
+```{r dataselectie-aangespoeld-activity}
 land_zoetwater_kust %>%
   st_drop_geometry() %>%
   count(activity) %>%
@@ -150,7 +150,7 @@ land_zoetwater_kust %>%
 
 Er is een aangespoelde schelp van de Grote glansslak en enkele van het Gewoon en Meertandig muizenoortje:
 
-```{r}
+```{r dataselectie-aangespoeld-activity-verwijderen}
 land_zoetwater_kust %>%
   st_drop_geometry() %>%
   filter(activity == "aangespoeld") %>% 
@@ -168,7 +168,7 @@ te_verwijderen <- c(te_verwijderen,
 
 - in ```notes```
 
-```{r}
+```{r dataselectie-aangespoeld-notes}
 any(grepl("aangespoeld", land_zoetwater_kust$notes, ignore.case = TRUE))
 ```
 
@@ -179,7 +179,7 @@ Zijn er waarnemingen van *fossiele schelpen*?
 
 - in ```method```
 
-```{r}
+```{r dataselectie-fossiel-method}
 land_zoetwater_kust %>%
   st_drop_geometry() %>%
   count(method) %>%
@@ -189,7 +189,7 @@ land_zoetwater_kust %>%
 
 1 fossiel opgezwollen brakwaterhorentje en 4 fossiele wadslakjes:
 
-```{r}
+```{r dataselectie-fossiel-method-verwijderen}
 land_zoetwater_kust %>%
   st_drop_geometry() %>%
   filter(method == "fossiel") %>% 
@@ -209,7 +209,7 @@ te_verwijderen <- c(te_verwijderen,
 
 70 verdere waarnemingen bevatten in notities het woord Holoceen, fossiel of 'middeleeuw'. De volgende tabel toont aantal per soort:
 
-```{r}
+```{r dataselectie-fossiel-notes}
 land_zoetwater_kust %>%
   st_drop_geometry() %>%
   filter(method != "fossiel",
@@ -228,7 +228,7 @@ te_verwijderen <- c(te_verwijderen,
 
 We verwijderen de waarnemingen van de aangespoelde en fossiele schelpen. Het gaat om `r length(te_verwijderen)` waarnemingen.
 
-```{r}
+```{r dataselectie-verwijder-selectie}
 land_zoetwater_kust_selectie <- land_zoetwater_kust %>%
   filter(!(id %in% te_verwijderen))
 ```
@@ -239,7 +239,7 @@ land_zoetwater_kust_selectie <- land_zoetwater_kust %>%
 
 Er is altijd onzekerheid op de exacte locatie van een waarneming. We zien een groot aantal waarnemingen met een accuraatheid groter dan 100 m (arbitrair maximum bepaald na communicatie via mail):
 
-```{r}
+```{r dataselectie-precisie-waarnemingen}
 land_zoetwater_kust_selectie %>%
   st_drop_geometry() %>%
   count(accuracy) %>%
@@ -250,7 +250,7 @@ land_zoetwater_kust_selectie %>%
 
 De waarnemingen van 26-05-2018 werden door Hans De Blauwe ingegeven en zetten we voor de zekerheid op 100 m nauwkeurigheid. De andere waarnemingen > 100 m werden door Franky gecontroleerd en zijn correct. Deze zetten we op 25 m. Alle waarnemingen met nauwkeurigheid < 25 m zetten we ook op 25 m (arbitrair minimum).
 
-```{r}
+```{r dataselectie-precisie-verander}
 land_zoetwater_kust_selectie <- land_zoetwater_kust_selectie %>%
   mutate(accuracy = case_when(
     accuracy < 25 ~ 25,
@@ -262,7 +262,7 @@ land_zoetwater_kust_selectie <- land_zoetwater_kust_selectie %>%
 
 De verdeling is nu als volgt:
 
-```{r}
+```{r dataselectie-precisie-aangepast}
 land_zoetwater_kust_selectie %>%
   st_drop_geometry() %>%
   count(accuracy) %>%
@@ -278,7 +278,7 @@ In de data exploratie kunnen we dit visualiseren.
 
 Gebruik de "GBIF-naamontleder" om nomenclatuurinformatie op te halen voor de wetenschappelijke namen in de dataset.
 
-```{r}
+```{r dataselectie-parse-gbif, cache=TRUE}
 parsed_names <- land_zoetwater_kust_selectie %>%
   distinct(`scientific name`) %>%
   pull() %>%
@@ -287,7 +287,7 @@ parsed_names <- land_zoetwater_kust_selectie %>%
 
 Toon wetenschappelijke namen met nomenclatuurproblemen, d.w.z. niet van het `type = SCIENTIFIC` of die niet volledig zijn ontleed. Let op: deze zijn niet noodzakelijk onjuist.
 
-```{r}
+```{r dataselectie-show-parsed}
 probleem_namen <- parsed_names %>%
   select(scientificname, type, parsed, parsedpartially, rankmarker) %>%
   filter(!(type == "SCIENTIFIC" & 
@@ -298,7 +298,7 @@ probleem_namen %>% kable
 
 We voegen eerst wetenschappelijke namen en taxonomische info toe door te verbinden met de [GBIF taxonomic backbone](https://www.gbif.org/dataset/d7dddbf4-2cf0-4f39-9b2a-bb099caae36c) [@GBIFtax2022, via GBIF.org op `r Sys.Date()`].
 
-```{r, cache=TRUE}
+```{r dataselectie-getnames-gbif, cache=TRUE}
 # Voeg wetenschappelijke namen toe
 land_zoetwater_kust_selectie <- land_zoetwater_kust_selectie %>%
   st_drop_geometry() %>%
@@ -325,7 +325,7 @@ land_zoetwater_kust_selectie <- land_zoetwater_kust_selectie %>%
 
 Nu lossen we manueel nog de specifieke problemen van verzamelgroepen op.
 
-```{r}
+```{r dataselectie-verzamelgroepen}
 soortgroepen <- c("Arion rufus / ater", probleem_namen$scientificname)
 
 land_zoetwater_kust_selectie <- land_zoetwater_kust_selectie %>%
@@ -373,7 +373,7 @@ land_zoetwater_kust_selectie <- land_zoetwater_kust_selectie %>%
 
 Blijkbaar wordt het Meertandig muizenoortje *Myosotella denticulata* (Montagu, 1803) beschouwd als een synoniem van het Gewoon muizenoortje *Myosotella myosotis* (Draparnaud, 1801). Zie [GBIF](https://www.gbif.org/species/4359191) en [MolluscaBase](https://www.molluscabase.org/aphia.php?p=taxdetails&id=139672). Momenteel zal ik deze wel nog als aparte taxa beschouwen, dus dit moet manueel aangepast worden.
 
-```{r}
+```{r dataselectie-namen-manueel}
 land_zoetwater_kust_selectie <- land_zoetwater_kust_selectie %>%
   mutate(scientificName = ifelse(verbatim_name == "Myosotella denticulata",
                                  "Myosotella denticulata (Montagu, 1803)",
@@ -391,7 +391,7 @@ land_zoetwater_kust_selectie <- land_zoetwater_kust_selectie %>%
 
 Hebben we nog missing data op genus level of hoger?
 
-```{r}
+```{r dataselectie-check-ongedetermineerd}
 land_zoetwater_kust_selectie %>% 
   filter_at(vars(genus, family, class, phylum, kingdom), 
             any_vars(is.na(.))) %>%
@@ -425,7 +425,7 @@ Gewone kristalslak = Grote kristalslak
 Tandeloze korfslak/Ruwe korfslak = Tandloze korfslak / Ruwe korfslak  
 Cylindrische korfslak = Cilindrische korfslak
 
-```{r}
+```{r dataselectie-ned-soortnaam}
 land_zoetwater_kust_selectie <- land_zoetwater_kust_selectie %>%
   mutate(`species name` = recode(`species name`, 
            "Boswegslak/Grauwe wegslak" = "Bos-wegslak / Grauwe wegslak",
@@ -454,7 +454,7 @@ land_zoetwater_kust_selectie <- land_zoetwater_kust_selectie %>%
 
 In de kolom `life stage` vinden we de volgende informatie:
 
-```{r}
+```{r dataselectie-life-stage}
 land_zoetwater_kust_selectie %>%
   count(`life stage`) %>%
   arrange(`life stage`) %>%
@@ -463,7 +463,7 @@ land_zoetwater_kust_selectie %>%
 
 In de kolom `activity` vinden we de volgende informatie:
 
-```{r} 
+```{r dataselectie-activity} 
 land_zoetwater_kust_selectie %>%
   count(activity) %>%
   arrange(activity) %>%
@@ -485,7 +485,7 @@ We willen een kolom `toestand` toevoegen met de 3 categoriën. Deze zijn te vind
 -   onbekend
     -   rest
 
-```{r}
+```{r dataselectie-get-toestand}
 land_zoetwater_kust_selectie <- land_zoetwater_kust_selectie %>%
   mutate(toestand = case_when(
     `life stage` == "levend dier" | activity == "levend dier" | 
@@ -500,7 +500,7 @@ land_zoetwater_kust_selectie <- land_zoetwater_kust_selectie %>%
     )
 ```
 
-```{r} 
+```{r dataselectie-summary-toestand} 
 land_zoetwater_kust_selectie %>%
   count(toestand) %>%
   arrange(toestand) %>%
@@ -512,7 +512,7 @@ land_zoetwater_kust_selectie %>%
 
 We selecteren de kolommen die voor ons van belang zijn en geven ze logische namen.
 
-```{r}
+```{r dataselectie-preparatie}
 final_df <- land_zoetwater_kust_selectie %>%
   select(id, datum = date, ned_soortnaam = `species name`, wet_soortnaam, 
          aantal = number, levensstadium = `life stage`, activiteit = activity, 
@@ -528,13 +528,13 @@ final_df <- land_zoetwater_kust_selectie %>%
 
 We slaan de finale dataset van waaremingen op als csv-bestand.
 
-```{r}
+```{r dataselectie-export-waarnemingen}
 write_csv(final_df, file = paste(out_path, "waarnemingen_kust.csv", sep = "/"))
 ```
 
 We slaan ook een lijst op van alle gevonden soorten.
 
-```{r}
+```{r dataselectie-export-soortenlijst}
 soorten_lijst <- final_df %>%
   distinct(ned_soortnaam, wet_soortnaam, species, author, genus, 
            family, class, phylum, kingdom) %>% 
@@ -546,7 +546,7 @@ openxlsx::write.xlsx(soorten_lijst,
 
 We slaan ten slotte een lijst op van de waarnemingen niet gedetermineerd tot op soortniveau en waarnemingen waarvan we de toestand niet weten (levend of lege schelp.)
 
-```{r}
+```{r dataselectie-export-onzeker}
 ongedetermineerd <- final_df %>%
   filter(is.na(species))
 

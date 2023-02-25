@@ -16,7 +16,7 @@ We lezen de volgende kaarten in:
 - uitbreiding regio kustduinen
 - provincies van Vlaanderen
 
-```{r, results="hide"}
+```{r kmhok-selectie-inlezen, results="hide"}
 # Locatie van data en output mappen
 data_path <- file.path(slak_in_du_dir, "data", "raw")
 out_path <- file.path(slak_in_du_dir, "data", "processed")
@@ -47,7 +47,7 @@ provincies <- st_transform(provincies, crs = proj_crs)
 
 Visualisatie van de kaartlagen:
 
-```{r, cache=TRUE}
+```{r kmhok-selectie-kaarten, cache=TRUE}
 # Plot UTM grids naast elkaar
 utm_1km_plot <- ggplot() +
                   geom_sf(data = utm_1km) +
@@ -94,7 +94,7 @@ provincies %>%
 
 We selecteren de ecoregio's "kustduinen" en "polders en de getijdenschelde" gelegen in West-Vlaanderen. Daarvoor extraheren we eerst West-Vlaanderen uit de provincie-kaartlaag.
 
-```{r subset-selectie}
+```{r kmhok-selectie-subset}
 # Selecteer West-Vlaanderen
 west_vlaanderen <- provincies %>% filter(NAAM == "West-Vlaanderen")
 
@@ -115,7 +115,7 @@ eco_selectie %>%
 
 Daarna gebruiken we West-Vlaanderen om een stuk uit de ecoregio-laag te knippen. Dit is nodig aangezien de "polders en de getijdenschelde" ook buiten West-Vlaanderen te vinden zijn, maar die hebben wij niet nodig. We zijn enkel geïnteresseerd in de kustpolders.
 
-```{r intersectie-wvl}
+```{r kmhok-selectie-intersectie-wvl}
 # Neem de intersectie van beide lagen
 intersect_wvl <- st_intersection(west_vlaanderen, eco_selectie) %>%
   mutate(ecoregio = ifelse(ecoregio == "polders en de getijdenschelde", 
@@ -134,7 +134,7 @@ intersect_wvl %>%
 
 We moeten de ecoregio kaart uitbreiden omdat deze incompleet is voor de kustduinen. Dit was het geval voor de haven van Zeebrugge, de Baai van Heist en een deel van de Zwinduinen. 
 
-```{r}
+```{r kmhok-selectie-uitbreiding}
 uitbreiding_kust %>%
   mutate(OIDN = 1, UIDN = NA, VERSDATUM = NA, TERRID = NA,
          NAAM = "West-Vlaanderen", NISCODE = NA, NUTS2 = NA, LENGTE = NA,
@@ -151,7 +151,7 @@ uitbreiding_kust %>%
 
 Deze uitbreiding werd manueel getekend in QGIS v3.2.3 [@QGIS2018Software] op basis van een satellietkaart. We voegen deze uitbreiding nu bij de finale laag bekomen in vorige deel om het deelgebied kustduinen uit te breiden.
 
-```{r}
+```{r kmhok-selectie-plot-uitbreiding}
 intersect_wvl2 <- intersect_wvl %>%
   filter(ecoregio == "kustduinen") %>%
   st_union(uitbreiding_kust %>% st_buffer(0.5)) %>%
@@ -169,7 +169,7 @@ ggplot(intersect_wvl2) +
 
 Nu overlappen we de laatste laag met de UTM-hokken.
 
-```{r intersectie-utm}
+```{r kmhok-selectie-intersectie-utm}
 # Neem de intersectie van beide lagen voor 5 en 10 km
 intersect_utm1 <- st_intersection(intersect_wvl2, utm_1km)
 intersect_utm2 <- st_intersection(intersect_wvl2, utm_2km)
@@ -210,7 +210,7 @@ p4
 
 We willen een lijst van de UTM hokken op 5 en 10 km schaal. De namen van de hokken bevinden zich in de kolom `TAG`. Daaruit kunnen we selecteren, maar we hernoemen deze resp. naar `utm_5` en `utm_10` voor de 5 en 10 km hokken. Ze worden hier opgelijst en schrijven ze ook uit naar een Excel-file.
 
-```{r tabel-utm}
+```{r kmhok-selectie-tabel-utm}
 # Maak een mooie tabel
 utm_5km_out <- intersect_utm5 %>%
                  st_drop_geometry() %>%
@@ -231,7 +231,7 @@ rownames(utm_10km_out) <- NULL
 utm_10km_out
 ```
 
-```{r output-utm}
+```{r kmhok-selectie-output-utm}
 # Output naar Excel
 wb <- openxlsx::createWorkbook()
 openxlsx::addWorksheet(wb, "utm_10km")
@@ -247,7 +247,7 @@ openxlsx::saveWorkbook(wb, file = paste(out_path, "utm_hokken_slakindu.xlsx",
 
 ## Visualisatie en export kaart geselecteerde hokken
 
-```{r plot-utm}
+```{r kmhok-selectie-plot-utm}
 # Maak selectie UTM-hokken
 utm_1km_lijst <- unique(intersect_utm1$TAG)
 utm_2km_lijst <- unique(intersect_utm2$TAG)
@@ -309,7 +309,7 @@ utm_10km_kust %>%
 
 Ten slotte exporteren we de kaartlagen van het onderzoeksgebied en de verschillende UTM-hokken over het onderzoeksgebied als .shp-files.
 
-```{r}
+```{r kmhok-selectie-output-shp}
 # Output .shp-files
 st_write(intersect_wvl2, paste(out_path, "studiegebied_kust.shp", 
                                sep = "/"), 

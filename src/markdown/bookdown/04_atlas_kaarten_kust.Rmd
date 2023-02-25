@@ -14,7 +14,7 @@ We lezen de volgende kaarten in:
 - UTM 10 km hokken in het Slak-in-Dugebied aan de kust
 - Slak-in-Dugebied aan de kust
 
-```{r, results="hide"}
+```{r verspreiding-data, results="hide"}
 # Locatie van data en output mappen
 data_path <- file.path(slak_in_du_dir, "data", "raw")
 out_path <- file.path(slak_in_du_dir, "data", "processed")
@@ -37,7 +37,7 @@ proj_crs <- 32631
 
 Visualisatie van de kaartlagen:
 
-```{r}
+```{r verspreiding-kaarten}
 # Maak thema voor plotten van kaartjes
 mytheme <- theme(panel.grid.major = element_line(color = "grey", 
                                                  linetype = "dashed", 
@@ -90,7 +90,7 @@ utm_10km_kust %>%
 
 We lezen de waarnemingendata in van Slak-in-Du na data selectie en preparatie. We trekken een buffer rond elke waarneming die overeenkomt met hun nauwkeurigheid.
 
-```{r}
+```{r verspreiding-waarnemingen}
 # Laad data
 slakken_data <- read_csv(paste(out_path, "waarnemingen_kust.csv", sep = "/"))
 
@@ -112,7 +112,7 @@ slakken_data_sf_buffer <- slakken_data_sf %>%
 
 Om de atlaskaarten te maken, kijken we naar de overlap van de UTM-hokken met de buffers. We willen echter dat buffers die meerdere hokken overlappen slechts het hok kleuren waar ze het grootste opppervlakte hebben. Beschouw bijvoorbeeld de volgende punten:
 
-```{r}
+```{r verspreiding-simulatie}
 punten <- data.frame(id = 1:2, 
                      x = c(492000,495500),
                      y = c(5678000, 5672000)) %>%
@@ -130,7 +130,7 @@ utm_5km_kust %>%
 
 We willen niet dat alle hokken met overlap gekleurd worden zoals hier:
 
-```{r}
+```{r verspreiding-plot-simulatie-mis}
 # Neem intersectie punten met buffer en grid
 intersection <- punten %>%
   st_intersection(utm_5km_kust %>%
@@ -156,7 +156,7 @@ utm_5km_kust %>%
 
 We willen wel de hokken met de grootste overlap kleuren, zoals hier:
 
-```{r}
+```{r verspreiding-plot-simulatie-goed}
 # Neem intersectie grid en punten met buffer
 intersection <- utm_5km_kust %>%
   filter(startsWith(TAG, "DS97")) %>%
@@ -192,7 +192,7 @@ utm_5km_kust %>%
 
 Voor we de verspreidingskaarten maken, is het belangrijk om een idee te hebben waar er precies is gezocht en met welke inspanning. Dit zal de interpretatie van de kaarten verbeteren. Zoekinspanning wordt hier gemeten als het aantal dagen per UTM-hok. Hokken waar we niet zijn geweest, zijn niet gekleurd (grijs).
 
-```{r, cache=TRUE}
+```{r verspreiding-inspanning, cache=TRUE}
 resoluties <- c(1, 2, 5, 10)
 
 for (resolutie in resoluties) {
@@ -208,7 +208,7 @@ for (resolutie in resoluties) {
        coord_sf(datum = proj_crs) +
        mytheme
   
-  if (resolutie == 10) {
+  if (resolutie %in% c(5, 10)) {
     p <- p + geom_sf_text(aes(label = n))
   }
   
@@ -220,7 +220,7 @@ for (resolutie in resoluties) {
 
 We tellen het aantal soorten per kilometerhok. We beschouwen enkel waarnemingen die tot op soort zijn gedetermineerd. Soortengroepen zijn dus ook niet meegerekend. Hokken waar we niet zijn geweest, zijn niet gekleurd (grijs).
 
-```{r, cache=TRUE}
+```{r verspreiding-soortenrijkdom, cache=TRUE}
 resoluties <- c(1, 2, 5, 10)
 
 data <- slakken_data_sf_buffer %>%
@@ -239,7 +239,7 @@ for (resolutie in resoluties) {
        coord_sf(datum = proj_crs) +
        mytheme
   
-  if (resolutie == 10) {
+  if (resolutie %in% c(5, 10)) {
     p <- p + geom_sf_text(aes(label = n))
   }
   
@@ -252,12 +252,12 @@ In hokken waar we minder zijn geweest zullen we uiteraard ook minder soorten zie
 
 ## Verspreidingskaarten
 
-```{r, cache=TRUE}
+```{r verspreiding-atlas, cache=TRUE}
 soorten <- slakken_data_sf_buffer %>% 
   st_drop_geometry() %>%
   arrange(class, family, wet_soortnaam) %>%
   distinct(ned_soortnaam, wet_soortnaam)
-resoluties <- c(1, 2, 5, 10)
+resoluties <- c(1, 2)
 
 for (i in seq_len(nrow(soorten))) {
   soortnaam <- soorten$ned_soortnaam[i]
