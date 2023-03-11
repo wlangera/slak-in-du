@@ -16,7 +16,7 @@ library(mapview)
 library(rgbif)
 
 # Source
-slak_in_du_dir <- "C:/Users/WARD/Documents/slakken/Slak-in-Du/analyses/slak-in-du"
+slak_in_du_dir <- "C:/Users/lange/Documents/onderzoek/Slak-in-Du/analyses/slak-in-du"
 source(file.path(slak_in_du_dir, "src", "R", "functions.R"))
 
 # References

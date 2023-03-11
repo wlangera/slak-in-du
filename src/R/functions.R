@@ -1,5 +1,5 @@
 path_to_utm_grids <- function(){
-  path <- paste0("C:/Users/WARD/Documents/slakken/Slak-in-Du/analyses/", 
+  path <- paste0("C:/Users/lange/Documents/onderzoek/Slak-in-Du/analyses/", 
                  "slak-in-du/data/processed")
   return(path)
 }
