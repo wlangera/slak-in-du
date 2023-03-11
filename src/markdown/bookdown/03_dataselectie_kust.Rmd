@@ -207,13 +207,14 @@ te_verwijderen <- c(te_verwijderen,
 
 - in ```notes```
 
-70 verdere waarnemingen bevatten in notities het woord Holoceen, fossiel of 'middeleeuw'. De volgende tabel toont aantal per soort:
+70 verdere waarnemingen bevatten in notities het woord Holoceen, Pleistoceen, fossiel of 'middeleeuw'. De volgende tabel toont aantal per soort:
 
 ```{r dataselectie-fossiel-notes}
 land_zoetwater_kust %>%
   st_drop_geometry() %>%
   filter(method != "fossiel",
-         grepl("fossiel|holoceen|middeleeuw", notes, ignore.case = TRUE)) %>%
+         grepl("fossiel|holoce(en|ne)|pleistoce(en|ne)|middeleeuw", notes, 
+               ignore.case = TRUE)) %>%
   count(`species name`) %>%
   kable()
 
@@ -222,7 +223,8 @@ te_verwijderen <- c(te_verwijderen,
   land_zoetwater_kust %>%
     st_drop_geometry() %>%
   filter(method != "fossiel",
-         grepl("fossiel|holoceen|middeleeuw", notes, ignore.case = TRUE)) %>% 
+         grepl("fossiel|holoce(en|ne)|pleistoce(en|ne)|middeleeuw", notes, 
+               ignore.case = TRUE)) %>% 
     pull(id))
 ```
 
