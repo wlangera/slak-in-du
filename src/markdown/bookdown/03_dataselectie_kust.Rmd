@@ -207,7 +207,7 @@ te_verwijderen <- c(te_verwijderen,
 
 - in ```notes```
 
-70 verdere waarnemingen bevatten in notities het woord Holoceen, Pleistoceen, fossiel of 'middeleeuw'. De volgende tabel toont aantal per soort:
+$n$ verdere waarnemingen bevatten in notities het woord Holoceen, Pleistoceen, fossiel of 'middeleeuw'. De volgende tabel toont aantal per soort:
 
 ```{r dataselectie-fossiel-notes}
 land_zoetwater_kust %>%
