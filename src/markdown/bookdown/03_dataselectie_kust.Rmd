@@ -298,7 +298,7 @@ probleem_namen <- parsed_names %>%
 probleem_namen %>% kable
 ```
 
-We voegen eerst wetenschappelijke namen en taxonomische info toe door te verbinden met de [GBIF taxonomic backbone](https://www.gbif.org/dataset/d7dddbf4-2cf0-4f39-9b2a-bb099caae36c) [@GBIFtax2022, via GBIF.org op `r Sys.Date()`].
+We voegen eerst wetenschappelijke namen en taxonomische info toe door te verbinden met de [GBIF taxonomic backbone](https://www.gbif.org/dataset/d7dddbf4-2cf0-4f39-9b2a-bb099caae36c) [@GBIFtax2023, via GBIF.org op `r Sys.Date()`].
 
 ```{r dataselectie-getnames-gbif, cache=TRUE}
 # Voeg wetenschappelijke namen toe
