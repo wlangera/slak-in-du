@@ -92,6 +92,49 @@ rel_obs %>%
 
 We zien een grote soortenrijkdom in de duinen. De curve is vrij stijl, wat wil zeggen dat de evenness is eerder laag is: hooggerangde soorten hebben een veel hoger aantal waarnemingen dan laaggerangde soorten.
 
+We maken een voorspelling van het aantal soorten via rarefaction.
+
+```{r}
+library(iNEXT)
+
+# calculate number of sampling units --------------------------------------
+
+number_of_sampling_units <- slakken_data %>%
+  filter(!is.na(species)) %>%
+  distinct(datum) %>%
+  nrow()
+
+# calculate incidence frequencies -----------------------------------------
+
+incidence_frequencies <- slakken_data %>%
+  filter(!is.na(species)) %>%
+  group_by(species) %>%
+  summarise(n = n_distinct(datum)) %>%
+  pull(n)
+
+rare_out_inc <-
+  iNEXT::iNEXT(c(number_of_sampling_units, incidence_frequencies),
+               datatype = "incidence_freq"
+               )
+
+rare_out_inc$AsyEst %>%
+  kable()
+```
+
+```{r}
+rare_out_inc$iNextEst$size_based %>%
+  filter(Method != "Observed") %>%
+  mutate(Method = factor(Method, levels = c("Rarefaction", "Extrapolation"))) %>%
+  ggplot() +
+    geom_ribbon(aes(x = t, ymin = qD.LCL, ymax = qD.UCL), fill = alpha("orange", 0.4)) +
+    geom_line(aes(x = t, y = qD, linetype = Method)) +
+    geom_point(data = rare_out_inc$iNextEst$coverage_based %>%
+                      filter(Method == "Observed"),
+               aes(x = t, y = qD)) +
+    scale_linetype_manual(values = c("solid", "dotted")) +
+    labs(linetype = "Legende", x = "aantal dagen", y = "aantal soorten")
+```
+
 
 ## Samenvattende tabel
 
