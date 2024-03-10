@@ -29,7 +29,7 @@ Bovendien wordt de methodiek zo goed mogelijk uitgeschreven zodat mensen met ver
 
 Het technisch rapport bestaat uit vier delen:
 
-1.  Afbakening van het Slak-in-Du gebied aan de kust. Het studiegebied kan dan gebruikt worden om de data te selecteren en UTM-hokken te selectieren die kunnen gebruikt worden om verspreidingskaarten te maken. Hoofdstuk \@ref(studiegebied).
+1.  Afbakening van het Slak-in-Du gebied aan de kust. Het studiegebied kan dan gebruikt worden om de data te selecteren en UTM-hokken te selecteren die kunnen gebruikt worden om verspreidingskaarten te maken. Hoofdstuk \@ref(studiegebied).
 2.  Selectie van de data en data preparatie voor verdere analyses. Hoofdstuk \@ref(dataselectie).
 3.  Maken van "atlas-stijl" verspreidingskaarten m.b.v. UTM-hokken op verschillende schalen. Hoofdstuk \@ref(verspreidingskaarten).
 4.  Exploratie van de data om samenvattende cijfers en tabellen te genereren. Hoofdstuk \@ref(exploratie).
